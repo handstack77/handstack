@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>폴링 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 실시간 데이터</div>
+    <h2>폴링</h2>
+    <p class="desc">2초마다 "서버"에서 전체 데이터를 다시 조회하는 폴링 방식을 시뮬레이션합니다(setValue로 전체 교체).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdPolling_toggle">폴링 시작/중지</button>
+    </div>
+    <syn_opengrid id="grdPolling" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Point', '포인트', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="polling.js"></script>
+</body>
+</html>

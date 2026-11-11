@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>provenance(변환 이력 배지) - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>provenance(변환 이력 배지)</h2>
+    <p class="desc">요청한 엔진(echarts)이 실제로는 설치되어 있지 않아 내장 엔진으로 자동 대체(engine fallback)되고, 활성 범위 선택이 없어 체크/선택 행으로 대체(range fallback)되는 두 가지 "이력 배지"를 동시에 확인합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdChartProvenance_show">배지 발생시키기</button>
+    </div>
+    <syn_opengrid id="grdChartProvenance" class="demo-grid" syn-options="{
+        columns: [['ProdName', '상품명', 130, false, 'text'], ['Price', '가격', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="chartProvenance.js"></script>
+</body>
+</html>

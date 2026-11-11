@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-23 공유 표시 포맷터 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-23 · 공유 표시 포맷터</h2>
+    <p class="desc">grid.override.strategy("displayFormatter", fn)으로 그리드 전체 숫자 컬럼에 공통 천단위 포맷을 적용합니다.</p>
+    <syn_opengrid id="grdOv23" class="demo-grid" syn-options="{
+        columns: [['MemberName', '이름', 120, false, 'text'], ['Point', '포인트', 100, false, 'number'], ['Salary', '급여', 130, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov23.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-19 트리 행 추가 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-19 · 트리 행 추가(P1)<span class="demo-badge">inject·P1</span></h2>
+    <p class="desc">addTreeRow()는 빈 스텁입니다. override로 부모ID 아래 신규 노드를 삽입하는 동작을 주입합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv19_add">본부장(id=1) 아래 팀원 추가</button>
+    </div>
+    <syn_opengrid id="grdOv19" class="demo-grid" syn-options="{
+        columns: [['name', '이름', 160, false, 'text'], ['title', '직책', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov19.js"></script>
+</body>
+</html>

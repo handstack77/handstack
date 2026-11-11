@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>필터 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 데이터 & 컬럼</div>
+    <h2>필터</h2>
+    <p class="desc">컬럼 조건(=, contains, gte 등)으로 필터링합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdFiltering_filterDept">부서=개발팀 필터</button>
+        <button type="button" id="grdFiltering_filterPoint">포인트&gt;=5000 필터</button>
+        <button type="button" id="grdFiltering_clearFilter" class="secondary">필터 초기화</button>
+    </div>
+    <syn_opengrid id="grdFiltering" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Department', '부서', 110, false, 'text'],
+            ['Point', '포인트', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="filtering.js"></script>
+</body>
+</html>

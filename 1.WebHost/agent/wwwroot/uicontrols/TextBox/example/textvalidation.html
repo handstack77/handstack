@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TextBox - 형식 검증</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>TextBox 형식 검증/자동 마스킹</h3>
+
+		<div>
+			<label for="txtHomePhone">전화번호 (homephone) - 숫자만 입력 후 다른 칸을 클릭해 보세요</label><br>
+			<input id="txtHomePhone" type="text" syn-options="{editType: 'homephone'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtMobilePhone">휴대전화 (mobilephone)</label><br>
+			<input id="txtMobilePhone" type="text" syn-options="{editType: 'mobilephone'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtEmail">이메일 (email)</label><br>
+			<input id="txtEmail" type="text" syn-options="{editType: 'email'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtJuminNo">주민등록번호 (juminno)</label><br>
+			<input id="txtJuminNo" type="text" syn-options="{editType: 'juminno'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtBusinessNo">사업자등록번호 (businessno, 체크섬 검증)</label><br>
+			<input id="txtBusinessNo" type="text" syn-options="{editType: 'businessno'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtCorporateNo">법인등록번호 (corporateno, 오류 시 값 유지 + 빨간 글씨)</label><br>
+			<input id="txtCorporateNo" type="text" syn-options="{editType: 'corporateno', inValidateClear: false}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtCreateDate">일자 (date, yyyyMMdd 또는 yyyy-MM-dd)</label><br>
+			<input id="txtCreateDate" type="text" syn-options="{editType: 'date'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtTime5">시:분 (time5)</label><br>
+			<input id="txtTime5" type="text" syn-options="{editType: 'time5'}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtRequiredName">필수 입력 + 유효성 검증 규칙 (validators)</label><br>
+			<input id="txtRequiredName" type="text" syn-options="{editType: 'text', validators: ['require'], controlText: '담당자명'}">
+		</div>
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

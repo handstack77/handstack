@@ -1,0 +1,12 @@
+{
+    "Comment": "주문 상태 코드 (DropDownList 예제용 로컬 데이터소스)",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "DataSource": [
+        { "CodeID": "REC", "CodeValue": "접수" },
+        { "CodeID": "PAY", "CodeValue": "결제 완료" },
+        { "CodeID": "SHP", "CodeValue": "배송 중" },
+        { "CodeID": "DON", "CodeValue": "배송 완료" },
+        { "CodeID": "CAN", "CodeValue": "취소" }
+    ]
+}

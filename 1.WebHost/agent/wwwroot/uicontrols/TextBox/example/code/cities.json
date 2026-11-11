@@ -1,0 +1,8 @@
+[
+    { "value": "SEO", "label": "서울특별시" },
+    { "value": "BUS", "label": "부산광역시" },
+    { "value": "DAE", "label": "대구광역시" },
+    { "value": "INC", "label": "인천광역시" },
+    { "value": "GWA", "label": "광주광역시" },
+    { "value": "DAJ", "label": "대전광역시" }
+]

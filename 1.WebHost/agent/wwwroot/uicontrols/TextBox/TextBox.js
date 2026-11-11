@@ -287,6 +287,12 @@
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $textbox.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             setting = setting || {};
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
@@ -486,44 +492,51 @@
         },
 
         loadDatalistItems(elID, url, callback) {
-            var el = syn.$l.get(elID);
-            if ($object.isNullOrUndefined(el) == false) {
-                var setting = JSON.parse(el.getAttribute('syn-options'));
-                var loadUrl = url || setting.datalistUrl;
-
-                if ($string.isNullOrEmpty(loadUrl) == false) {
-                    syn.$w.executeRequest({
-                        url: loadUrl,
-                        method: 'GET',
-                        success: function (response) {
-                            var items = [];
-                            if (Array.isArray(response)) {
-                                items = response.map(function (item) {
-                                    if ($object.isString(item)) {
-                                        return { value: item };
-                                    } else {
-                                        return {
-                                            value: item[setting.datalistValueField] || item.value || '',
-                                            label: item[setting.datalistLabelField] || item.label || ''
-                                        };
-                                    }
-                                });
-                            }
-                            $textbox.setDatalistItems(elID, items);
-
-                            if (callback && typeof callback === 'function') {
-                                callback(items);
-                            }
-                        },
-                        error: function (error) {
-                            console.error('datalist 로드 실패:', error);
-                            if (callback && typeof callback === 'function') {
-                                callback(null, error);
-                            }
-                        }
-                    });
-                }
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $textbox.loadDatalistItems(elID, url, function (items) { resolve(items || []); });
+                });
             }
+
+            var el = syn.$l.get(elID);
+            if ($object.isNullOrUndefined(el) == true) {
+                callback([]);
+                return;
+            }
+
+            var setting = JSON.parse(el.getAttribute('syn-options'));
+            var loadUrl = url || setting.datalistUrl;
+            if ($string.isNullOrEmpty(loadUrl) == true) {
+                callback([]);
+                return;
+            }
+
+            syn.$r.httpRequest('GET', loadUrl, {}).then(function (result) {
+                var items = [];
+                try {
+                    if (result && result.status === 200) {
+                        var response = (typeof result.response === 'string') ? JSON.parse(result.response) : result.response;
+                        if (Array.isArray(response)) {
+                            items = response.map(function (item) {
+                                if ($object.isString(item)) {
+                                    return { value: item };
+                                }
+                                return {
+                                    value: item[setting.datalistValueField] || item.value || '',
+                                    label: item[setting.datalistLabelField] || item.label || ''
+                                };
+                            });
+                        }
+                    } else {
+                        syn.$l.eventLog('$textbox.loadDatalistItems', 'datalist 로드 실패 status: ' + (result && result.status), 'Warning');
+                    }
+                } catch (error) {
+                    syn.$l.eventLog('$textbox.loadDatalistItems', 'datalist 응답 파싱 실패: ' + error, 'Warning');
+                }
+
+                $textbox.setDatalistItems(elID, items);
+                callback(items);
+            });
         },
 
         filterDatalistItems(elID, filterText) {

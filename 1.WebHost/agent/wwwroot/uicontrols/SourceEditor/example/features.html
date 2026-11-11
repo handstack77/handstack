@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SourceEditor - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>SourceEditor 전체 기능 확인</h3>
+        <p>
+            Monaco 기반 코드 편집기입니다. <code>language</code>/<code>theme</code>/<code>readOnly</code>/<code>lineNumbers</code>/<code>minimap</code>/<code>height</code> 옵션,
+            <code>getValue</code>/<code>setValue</code>/<code>clear</code>/<code>layoutResize</code>/<code>getActions</code>/<code>getControl</code> 과 Monaco 인스턴스를 통한 언어·테마 전환, 이벤트(변경/포커스/커서 위치)를 확인합니다.
+            이 컨트롤은 <code>syn-events</code> 를 지원하지 않아 에디터가 준비된 뒤 Monaco 이벤트 API 를 직접 연결합니다.
+        </p>
+
+        <syn_sourceeditor id="txtCode" syn-datafield="SourceCode" syn-options="{language: 'javascript', theme: 'vs-dark', height: '320px', minimap: {enabled: true}, lineNumbers: 'on'}"></syn_sourceeditor>
+
+        <div class="mt-3 mb-2">
+            <div class="mb-1"><strong>값</strong></div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']">
+            <input type="button" id="btnSetJs" value="setValue (JavaScript 예제)" syn-events="['click']">
+            <input type="button" id="btnSetSql" value="setValue (SQL 예제) + 언어 sql" syn-events="['click']">
+            <input type="button" id="btnSetJson" value="setValue (JSON 예제) + 언어 json" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+        </div>
+        <div class="mb-2">
+            <div class="mb-1"><strong>화면 / 상태 (Monaco 인스턴스 사용)</strong></div>
+            <input type="button" id="btnTheme" value="테마 전환 (vs-dark ↔ vs)" syn-events="['click']">
+            <input type="button" id="btnReadonly" value="읽기 전용 전환" syn-events="['click']">
+            <input type="button" id="btnMinimap" value="미니맵 전환" syn-events="['click']">
+            <input type="button" id="btnLineNumbers" value="줄 번호 전환" syn-events="['click']">
+            <input type="button" id="btnHeight" value="높이 전환 + layoutResize" syn-events="['click']">
+            <input type="button" id="btnRevealLine" value="3행으로 이동 (revealLine)" syn-events="['click']">
+            <input type="button" id="btnActions" value="getActions (등록된 액션 수)" syn-events="['click']">
+            <input type="button" id="btnBind" value="이벤트 연결 (변경/포커스/커서)" syn-events="['click']">
+        </div>
+        <pre id="preLog" class="p-2 border" style="max-height: 160px; overflow: auto;">(결과)</pre>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

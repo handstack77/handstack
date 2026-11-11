@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>재질 매트릭스 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 스타일 & 테마</div>
+    <h2>재질 매트릭스 (색·형태·밀도·질감)</h2>
+    <p class="desc">색(theme)·형태(skin)·밀도(density)·질감(texture) 4개 독립 축을 각각 조합해 봅니다.</p>
+    <div class="demo-toolbar">
+        <select id="grdTextureMatrix_density">
+            <option value="comfortable">comfortable</option>
+            <option value="compact">compact</option>
+        </select>
+        <select id="grdTextureMatrix_texture">
+            <option value="none">none</option>
+            <option value="linen">linen</option>
+            <option value="graph">graph</option>
+        </select>
+    </div>
+    <syn_opengrid id="grdTextureMatrix" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="textureMatrix.js"></script>
+</body>
+</html>

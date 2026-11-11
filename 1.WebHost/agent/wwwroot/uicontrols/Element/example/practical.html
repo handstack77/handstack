@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>Element - 견적 계산 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">영업 관리 / 견적</div>
+                                <h2 class="page-title">견적 계산</h2>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" id="btnReset" class="btn" syn-events="['click']"><i class="f:20 ti ti-refresh mr-2"></i> 초기화</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">견적 항목</h3>
+                                <div class="card-actions"><span class="mr-2 text-muted">수량·단가를 바꾸면 금액이 바로 계산됩니다.</span></div>
+                            </div>
+                            <div class="card-body p-2">
+                                <table class="table table-sm mb-0">
+                                    <thead><tr><th>품목</th><th style="width: 110px;" class="text-end">수량</th><th style="width: 150px;" class="text-end">단가</th><th style="width: 150px;" class="text-end">금액</th></tr></thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>기본 라이선스</td>
+                                            <td><input id="txtQty1" type="text" class="form-control form-control-sm text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 0, maxCount: 999}" syn-events="['blur']" value="3"></td>
+                                            <td><input id="txtPrice1" type="text" class="form-control form-control-sm text-end" syn-options="{editType: 'numeric', formatNumber: true, minCount: 0}" syn-events="['blur']" value="120,000"></td>
+                                            <td class="text-end"><span id="tdAmount1" syn-options="{dataType: 'number'}">0</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>유지보수</td>
+                                            <td><input id="txtQty2" type="text" class="form-control form-control-sm text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 0, maxCount: 999}" syn-events="['blur']" value="12"></td>
+                                            <td><input id="txtPrice2" type="text" class="form-control form-control-sm text-end" syn-options="{editType: 'numeric', formatNumber: true, minCount: 0}" syn-events="['blur']" value="30,000"></td>
+                                            <td class="text-end"><span id="tdAmount2" syn-options="{dataType: 'number'}">0</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>교육 과정</td>
+                                            <td><input id="txtQty3" type="text" class="form-control form-control-sm text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 0, maxCount: 999}" syn-events="['blur']" value="2"></td>
+                                            <td><input id="txtPrice3" type="text" class="form-control form-control-sm text-end" syn-options="{editType: 'numeric', formatNumber: true, minCount: 0}" syn-events="['blur']" value="250,000"></td>
+                                            <td class="text-end"><span id="tdAmount3" syn-options="{dataType: 'number'}">0</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-header p-2 bg-primary-lt"><h3 class="card-title">견적 합계</h3></div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-1"><span>공급가액</span><span><span id="spnSupply" syn-options="{dataType: 'number'}">0</span> 원</span></div>
+                                        <div class="d-flex justify-content-between mb-1"><span>부가세(10%)</span><span><span id="spnVat" syn-options="{dataType: 'number'}">0</span> 원</span></div>
+                                        <hr class="my-2">
+                                        <div class="d-flex justify-content-between fw-bold"><span>합계</span><span><span id="spnTotal" syn-options="{dataType: 'number'}" syn-events="['dblclick']" title="더블클릭하면 금액을 복사합니다">0</span> 원</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card overflow-auto">
+                                    <div class="card-header p-2 bg-primary-lt"><h3 class="card-title">상태</h3></div>
+                                    <div class="card-body">
+                                        <div class="mb-2">할인 대상: <span id="spnDiscount" syn-options="{}">비대상</span></div>
+                                        <div id="divMessage" syn-options="{content: 'html'}" class="text-muted">수량과 단가를 입력하세요.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

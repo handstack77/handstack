@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TextBox - 이벤트/자동완성/API</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>TextBox 이벤트 &amp; getValue/setValue/clear &amp; 자동완성(datalist)</h3>
+
+		<div>
+			<label for="txtCity">자동완성 목록 (datalistItems)</label><br>
+			<input id="txtCity" type="text" syn-options="{editType: 'text', datalistItems: ['서울특별시', '부산광역시', '대구광역시', '인천광역시', '광주광역시']}">
+		</div>
+		<br>
+
+		<div>
+			<label for="txtComment">change / blur 이벤트 로그</label><br>
+			<input id="txtComment" type="text" syn-options="{editType: 'text'}" syn-events="['change', 'blur', 'focus']">
+		</div>
+
+		<hr>
+		<input type="button" id="btnGetValue" value="getValue(txtComment)" syn-events="['click']">
+		<input type="button" id="btnSetValue" value="setValue(txtComment, '안녕하세요')" syn-events="['click']">
+		<input type="button" id="btnClear" value="clear(txtComment)" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>AUIGrid - $auigrid 실무형 컬럼 구성 (상품 목록)</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>$auigrid - 상품 목록(실무 화면에서 자주 쓰는 컬럼 조합)</h3>
+		<p>
+			<code>dropdown</code> 컬럼은 <code>local: true</code>로 지정하면 서버 호출 없이 페이지 스크립트의
+			<code>$auigridbasic.config.dataSource.CategoryID</code>에 미리 채워둔 코드 목록을 그대로 사용합니다(실무 화면의
+			공통 패턴). <code>showInlineFilter</code>는 헤더 아래에 텍스트 필터 입력창을 추가합니다.
+		</p>
+
+		<syn_auigrid id="grdProduct" syn-datafield="ProductList" syn-options="{
+			height: 300, showInlineFilter: true, controlText: '상품 목록',
+			columns: [
+				['ProdID', '상품코드', 100, false, 'text', true, 'left', null, {validators:['require','unique'], maxlength:20}],
+				['ProdName', '상품명', 200, false, 'text', false, 'left', null, {validators:['require'], maxlength:50}],
+				['CategoryID', '분류', 110, false, 'dropdown', false, 'center', null, {dataSourceID:'CategoryID', local:true, required:false, emptyText:'선택'}],
+				['Price', '판매가', 100, false, 'numeric', false, 'right', null, {}],
+				['UseYN', '판매여부', 80, false, 'checkbox', false, 'center', null, {checkValue:'Y', unCheckValue:'N'}],
+				['ReleaseDate', '출시일', 100, false, 'date', false, 'center', null, {}]
+			]
+		}" syn-events="['afterSelectionEnd', 'afterChange', 'filtering']" style="width: 760px;"></syn_auigrid>
+
+		<hr>
+		<input type="button" id="btnLoadRows" value="샘플 데이터 채우기" syn-events="['click']">
+		<input type="button" id="btnGetValue" value="getValue(변경분)" syn-events="['click']">
+		<input type="button" id="btnClear" value="clear" syn-events="['click']">
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

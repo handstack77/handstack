@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>ContextMenu - 문서함 관리 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">문서 관리 / 문서함</div>
+                                <h2 class="page-title">문서함</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">문서 목록</h3>
+                                <div class="card-actions"><span class="mr-2 text-muted">문서를 마우스 오른쪽 버튼으로 클릭하세요. 문서 상태에 따라 사용할 수 있는 메뉴가 달라집니다.</span></div>
+                            </div>
+                            <div class="card-body p-2">
+                                <table id="tblDocs" class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr><th style="width: 90px;">문서번호</th><th>제목</th><th style="width: 100px;">상태</th><th style="width: 110px;">수정일</th></tr>
+                                    </thead>
+                                    <tbody id="tbodyDocs"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <syn_contextmenu id="ctxDoc" syn-options="{
+                            target: '#tblDocs',
+                            delegate: 'tr.doc-row',
+                            menu: [
+                                { title: '열기', cmd: 'open', uiIcon: 'ui-icon-folder-open' },
+                                { title: '복사본 만들기', cmd: 'copy', uiIcon: 'ui-icon-copy' },
+                                { title: '---' },
+                                { title: '상태 변경', children: [
+                                    { title: '결재 요청', cmd: 'request' },
+                                    { title: '승인', cmd: 'approve' },
+                                    { title: '반려', cmd: 'reject' }
+                                ] },
+                                { title: '---' },
+                                { title: '삭제', cmd: 'remove', uiIcon: 'ui-icon-trash' }
+                            ]
+                        }" syn-events="['beforeOpen', 'select']"></syn_contextmenu>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">처리 내역</h3>
+                            </div>
+                            <div class="card-body">
+                                <pre id="preLog" class="mb-0" style="max-height: 160px; overflow: auto;">처리 내역이 여기에 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

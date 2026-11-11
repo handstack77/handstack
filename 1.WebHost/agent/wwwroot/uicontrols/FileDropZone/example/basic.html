@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>FileDropZone - 기본</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div style="max-width: 720px;">
+            <div>첨부파일</div>
+            <!-- repositoryID : /repository/api/storage 에 정의된 저장소 ID, dependencyID : 파일을 묶어 조회/삭제하는 키 -->
+            <!-- customPath1 : 업로드 저장 하위 경로(PhysicalPath/{customPath1}/...). 지정하지 않아도 다운로드되며, 이전 버전 repository 모듈은 ApplicationID 를 지정해야 다운로드됩니다. -->
+            <syn_filedropzone id="fdzBasic" syn-datafield="Attachments" syn-events="['change']" syn-options="{
+                repositoryID: 'TSTLM01',
+                applicationID: 'HDS',
+                dependencyID: 'EXAMPLE_FILEDROPZONE_BASIC',
+                customPath1: 'HDS'
+            }"></syn_filedropzone>
+        </div>
+        <div style="margin-top: 8px;">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="서버 파일 모두 삭제(removeAll)" syn-events="['click']" />
+        </div>
+        <pre id="preResult" style="max-width: 720px; white-space: pre-wrap; word-break: break-all;"></pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

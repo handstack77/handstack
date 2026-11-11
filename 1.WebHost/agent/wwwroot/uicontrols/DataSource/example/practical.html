@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>DataSource - 주문 마스터/상세 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <syn_data id="srcOrderInfo" syn-options="{
+            dataSourceID: 'OrderInfo',
+            storeType: 'Form',
+            columns: [
+                { data: 'OrderNo', dataType: 'string' },
+                { data: 'CustomerName', dataType: 'string' },
+                { data: 'OrderDate', dataType: 'string' },
+                { data: 'DeliveryAddress', dataType: 'string' },
+                { data: 'Memo', dataType: 'string' }
+            ]
+        }"></syn_data>
+        <syn_data id="srcOrderLines" syn-options="{
+            dataSourceID: 'OrderLines',
+            storeType: 'Grid',
+            columns: [
+                { data: 'LineNo', dataType: 'number' },
+                { data: 'ProductName', dataType: 'string' },
+                { data: 'UnitPrice', dataType: 'number' },
+                { data: 'Quantity', dataType: 'number' }
+            ]
+        }"></syn_data>
+
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">주문 관리 / 주문 등록</div>
+                                <h2 class="page-title">주문 등록 (마스터/상세)</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnLoad" class="btn" syn-events="['click']"><i class="f:20 ti ti-search mr-2"></i> 주문 조회(예제)</button>
+                                    <button type="button" id="btnNew" class="btn" syn-events="['click']"><i class="f:20 ti ti-file-plus mr-2"></i> 신규</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1100!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">주문 정보 (Form 저장소 OrderInfo)</h3>
+                                <div class="card-actions">
+                                    <span id="spnState" class="mr-2">신규</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">주문 번호</label>
+                                    <div class="col">
+                                        <input id="txtOrderNo" type="text" class="form-control" readonly syn-datafield="OrderNo" syn-options="{editType: 'text'}" placeholder="저장 시 채번">
+                                    </div>
+                                    <label class="col-2 col-form-label required">주문 일자</label>
+                                    <div class="col">
+                                        <input id="txtOrderDate" type="text" class="form-control" syn-datafield="OrderDate" syn-options="{editType: 'date', maskPattern: '9999-99-99', controlText: '주문 일자'}">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">고객명</label>
+                                    <div class="col">
+                                        <input id="txtCustomerName" type="text" class="form-control" maxlengthB="40" syn-datafield="CustomerName" syn-options="{editType: 'text', controlText: '고객명'}">
+                                    </div>
+                                    <label class="col-2 col-form-label">배송지</label>
+                                    <div class="col">
+                                        <input id="txtDeliveryAddress" type="text" class="form-control" maxlengthB="200" syn-datafield="DeliveryAddress" syn-options="{editType: 'text'}">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">메모</label>
+                                    <div class="col">
+                                        <input id="txtMemo" type="text" class="form-control" maxlengthB="200" syn-datafield="Memo" syn-options="{editType: 'text'}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">주문 상세 (Grid 저장소 OrderLines)</h3>
+                                <div class="card-actions">
+                                    <span id="spnTotal" class="mr-2 fw-bold">합계 0원</span>
+                                    <button type="button" id="btnAddLine" class="btn btn-sm" syn-events="['click']"><i class="f:18 ti ti-plus mr-1"></i> 상품 추가</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 60px;">Flag</th>
+                                            <th style="width: 60px;">순번</th>
+                                            <th>상품명</th>
+                                            <th style="width: 130px;" class="text-end">단가</th>
+                                            <th style="width: 110px;" class="text-end">수량</th>
+                                            <th style="width: 130px;" class="text-end">금액</th>
+                                            <th style="width: 60px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyLines"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">저장 대상 (트랜잭션 inputs 흉내)</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">
+                                    트랜잭션의 <code>inputs: [{ type: 'Row', dataFieldID: 'OrderInfo' }, { type: 'List', dataFieldID: 'OrderLines' }]</code> 로 서버에 보내는 값입니다.
+                                    상세는 조회 직후 상태(<code>R</code>)를 제외한 변경분(<code>C</code>/<code>U</code>/<code>D</code>)만 포함됩니다.
+                                </p>
+                                <pre id="preResult" class="mb-0">저장 버튼을 누르면 저장 대상이 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownCheckList - 로컬 데이터소스 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>로컬 캐시 JSON(<code>code/{storeSourceID}.json</code>)에서 옵션 목록을 읽어와 채우는 예제입니다. 이 폴더의 <code>code/DCLEX01.json</code> 파일을 데이터소스로 사용하며, <code>selectedValue</code>로 초기 선택값도 지정합니다.</p>
+            <select id="ddlFileExtension" multiple syn-options="{
+                placeholder: '허용 확장자를 선택하세요',
+                storeSourceID: 'DCLEX01',
+                local: true,
+                sharedAssetUrl: './',
+                toSynControl: true,
+                required: false,
+                selectedValue: ['TXT', 'PDF']
+            }" style="width: 260px;"></select>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="선택값 조회" syn-events="['click']" />
+            <input type="button" id="btnDataRefresh" value="데이터 다시 불러오기" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

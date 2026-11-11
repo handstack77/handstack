@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>기본 그리드 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 시작하기</div>
+    <h2>기본 그리드</h2>
+    <p class="desc">조회 · 추가 · 삭제 · 정렬(헤더 클릭) · CSV 내보내기까지 가장 기본적인 CRUD 흐름을 보여줍니다.</p>
+
+    <div class="demo-toolbar">
+        <button type="button" id="grdBasic_load">데이터 조회</button>
+        <button type="button" id="grdBasic_insert">행 추가</button>
+        <button type="button" id="grdBasic_remove">행 삭제</button>
+        <button type="button" id="grdBasic_export" class="secondary">CSV 내보내기</button>
+    </div>
+
+    <syn_opengrid id="grdBasic" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Email', '이메일', 200, false, 'text'],
+            ['Department', '부서', 110, false, 'text'],
+            ['Point', '포인트', 90, false, 'number']
+        ]
+    }"></syn_opengrid>
+
+    <div id="divLog" class="log-panel"></div>
+
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="basic.js"></script>
+</body>
+</html>

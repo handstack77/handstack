@@ -1,0 +1,35 @@
+.aui-pivot {
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
+    font-size: 14px;
+	border: 1px solid #bdbdbd;
+	background: #ffffff;
+	box-sizing: content-box;
+	appearance: none;
+	-webkit-appearance: none;
+	outline: none;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	touch-action: none;
+	-ms-touch-action: none;
+}
+
+.aui-pivot-panel-main {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+.aui-pivot-panel-close-btn {
+    display: none;
+}
+
+.syn-auipivot {
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #182433;
+}
+

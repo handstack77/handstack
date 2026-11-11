@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>SignaturePad - 물품 수령 확인(실무형)</title>
+    <style>
+        .doc { max-width: 720px; padding: 20px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .doc h3 { margin: 0 0 4px; }
+        .doc .field { margin: 14px 0; }
+        .doc label { display: block; margin-bottom: 4px; font-weight: 600; }
+        .doc label.required::after { content: ' *'; color: #b91c1c; }
+        .doc input[type=text] { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        .doc .actions { display: flex; gap: 8px; margin-top: 16px; }
+        .doc .error { color: #b91c1c; min-height: 20px; margin-top: 6px; }
+        .doc .saved { margin-top: 20px; }
+        .doc .saved img { max-width: 240px; border: 1px dashed #cbd5e1; border-radius: 6px; }
+        .doc pre { padding: 12px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 160px; overflow: auto; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="doc">
+            <h3>물품 수령 확인서</h3>
+            <div style="color: #64748b;">물품을 정상 수령하였음을 확인하며 아래에 서명합니다.</div>
+
+            <div class="field">
+                <label class="required" for="txtReceiver">수령인</label>
+                <input type="text" id="txtReceiver" placeholder="이름을 입력하세요" />
+            </div>
+            <div class="field">
+                <label class="required">서명</label>
+                <syn_signaturepad id="sigReceiver" syn-datafield="ReceiverSignature" syn-events="['change']" syn-options="{
+                    height: '180px', penColor: '#1e3a8a', imageType: 'image/png', placeholder: '여기에 서명해 주세요', controlText: '수령인 서명'
+                }"></syn_signaturepad>
+                <div id="divError" class="error" role="alert"></div>
+            </div>
+
+            <div class="actions">
+                <button type="button" id="btnUndo" syn-events="['click']">마지막 획 취소</button>
+                <button type="button" id="btnClear" syn-events="['click']">다시 서명</button>
+                <button type="button" id="btnSave" syn-events="['click']">저장</button>
+                <button type="button" id="btnLoad" syn-events="['click']">저장 내용 불러오기</button>
+            </div>
+
+            <div class="saved">
+                <div style="font-weight: 600;">저장된 내용 (서버 전송용 JSON)</div>
+                <pre id="preSaved">(저장 전)</pre>
+                <img id="imgSaved" alt="저장된 서명" hidden />
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

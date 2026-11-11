@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-30 destroy 자동 정리 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-30 · destroy 자동 정리</h2>
+    <p class="desc">보이지 않는 임시 그리드에 오버라이드를 건 뒤 destroy()하면, 내부적으로 restoreAll()이 자동 호출되는 것을 확인합니다(현재 화면의 그리드는 건드리지 않습니다).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv30_run">임시 그리드로 destroy 검증</button>
+    </div>
+    <syn_opengrid id="grdOv30" class="demo-grid" syn-options="{
+        columns: [['MemberName', '이름', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov30.js"></script>
+</body>
+</html>

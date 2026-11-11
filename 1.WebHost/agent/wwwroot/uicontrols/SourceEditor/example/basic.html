@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SourceEditor 기본 예제</title>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>JavaScript 모드 기본 에디터</div>
+            <syn_sourceeditor id="txtEditor1"
+                               syn-datafield="SourceCode"
+                               syn-options="{language: 'javascript', theme: 'vs-dark', minimap: {enabled: true}}"></syn_sourceeditor>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

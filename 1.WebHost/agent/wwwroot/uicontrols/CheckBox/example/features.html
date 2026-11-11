@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CheckBox - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>CheckBox 전체 기능 확인</h3>
+        <p>
+            <code>checkedValue</code>/<code>uncheckedValue</code>, <code>toSynControl</code>(<code>textContent</code> 라벨), <code>disabled</code>,
+            초기 <code>checked</code>, 그룹(<code>name</code>) 과 <code>getValue</code>/<code>setValue</code>/<code>toggleValue</code>/<code>clear</code>/<code>getGroupNames</code>,
+            <code>change</code>/<code>click</code> 이벤트를 확인합니다.
+        </p>
+
+        <h4>1. 옵션</h4>
+        <table class="table table-sm" style="max-width: 820px;">
+            <thead><tr><th style="width: 330px;">옵션 조합</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>기본값 (checkedValue '1' / uncheckedValue '0')</td>
+                    <td><input id="chkDefault" type="checkbox" syn-datafield="DefaultValue" syn-events="['change', 'click']"></td>
+                </tr>
+                <tr>
+                    <td>Y/N 값 + 라벨 (toSynControl + textContent)</td>
+                    <td><input id="chkUseYN" type="checkbox" syn-datafield="UseYN" syn-options="{toSynControl: true, checkedValue: 'Y', uncheckedValue: 'N', textContent: '사용 여부'}" syn-events="['change']"></td>
+                </tr>
+                <tr>
+                    <td>커스텀 값 + 초기 체크 (checked) + 라벨</td>
+                    <td><input id="chkStatus" type="checkbox" syn-datafield="Status" checked="checked" syn-options="{toSynControl: true, checkedValue: 'ACTIVE', uncheckedValue: 'INACTIVE', textContent: '활성 상태'}" syn-events="['change']"></td>
+                </tr>
+                <tr>
+                    <td>toSynControl: true (래퍼 + 라벨 자동 생성)</td>
+                    <td><input id="chkSyn" type="checkbox" syn-datafield="SynControl" syn-options="{toSynControl: true, checkedValue: 'Y', uncheckedValue: 'N', textContent: '알림 수신'}" syn-events="['change']"></td>
+                </tr>
+                <tr>
+                    <td>비활성화 (disabled)</td>
+                    <td><input id="chkDisabled" type="checkbox" syn-datafield="DisabledSample" syn-options="{toSynControl: true, disabled: true, textContent: '변경 불가 항목'}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>2. 그룹 (name 으로 묶기) - 전체 선택 연동</h4>
+        <div class="mb-2">
+            <input id="chkAll" type="checkbox" syn-options="{toSynControl: true, checkedValue: 'Y', uncheckedValue: 'N', textContent: '전체 선택'}" syn-events="['change']">
+        </div>
+        <div class="mb-2">
+            <input id="chkFruitApple" type="checkbox" name="fruit" syn-datafield="FruitApple" syn-options="{toSynControl: true, textContent: '사과'}" syn-events="['change']">
+            <input id="chkFruitBanana" type="checkbox" name="fruit" syn-datafield="FruitBanana" syn-options="{toSynControl: true, textContent: '바나나'}" syn-events="['change']">
+            <input id="chkFruitGrape" type="checkbox" name="fruit" syn-datafield="FruitGrape" syn-options="{toSynControl: true, textContent: '포도'}" syn-events="['change']">
+        </div>
+
+        <h4>3. 메서드</h4>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (chkUseYN)" syn-events="['click']">
+            <input type="button" id="btnSetY" value="setValue('Y')" syn-events="['click']">
+            <input type="button" id="btnSetTrue" value="setValue(true) (checkedValue 와 달라 해제)" syn-events="['click']">
+            <input type="button" id="btnSetEmpty" value="setValue('') 해제" syn-events="['click']">
+            <input type="button" id="btnToggle" value="toggleValue" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+            <input type="button" id="btnGroupNames" value="getGroupNames" syn-events="['click']">
+            <input type="button" id="btnGroupValues" value="그룹 선택값 수집" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

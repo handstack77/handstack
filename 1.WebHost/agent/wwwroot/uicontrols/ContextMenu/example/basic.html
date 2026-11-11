@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>기본 사용법 - 일반 div 영역에 우클릭 메뉴 붙이기</div>
+            <p>아래 회색 영역이나 버튼을 마우스 오른쪽 버튼으로 클릭해 보세요.</p>
+            <div id="divTarget" style="width:300px; height:150px; background:#eee; border:1px solid #ccc; padding:10px;">
+                <input type="button" id="btnSample" value="여기를 우클릭 해보세요" />
+            </div>
+
+            <syn_contextmenu id="ctxBasic" syn-options="{
+                target: '#divTarget',
+                delegate: 'input[type=button]',
+                menu: [
+                    { title: 'Cut', cmd: 'cut' },
+                    { title: 'Copy', cmd: 'copy', uiIcon: 'ui-icon-copy' },
+                    { title: 'Paste', cmd: 'paste', uiIcon: 'ui-icon-clipboard' },
+                    { title: '---' },
+                    { title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-trash' }
+                ]
+            }" syn-events="['select']"></syn_contextmenu>
+        </div>
+        <hr />
+        <div>
+            <div>선택한 메뉴(cmd)</div>
+            <pre id="preResult">(메뉴를 선택하면 여기에 표시됩니다)</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

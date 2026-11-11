@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownCheckList - 이벤트 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>change</code> 이벤트를 통해 선택 상태가 바뀔 때마다 <code>getSelectedValue</code> / <code>getSelectedText</code> 결과를 로그(브라우저 개발자 도구 콘솔)에 기록하는 예제입니다.</p>
+            <select id="ddlColor" multiple syn-events="['change']" syn-options="{
+                placeholder: '색상을 선택하세요',
+                toSynControl: true,
+                required: false
+            }" style="width: 220px;">
+                <option value="red">빨강</option>
+                <option value="green">초록</option>
+                <option value="blue">파랑</option>
+                <option value="yellow">노랑</option>
+            </select>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetSelectedValue" value="getSelectedValue" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedText" value="getSelectedText" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

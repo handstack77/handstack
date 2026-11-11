@@ -7,12 +7,14 @@
 
     $dateperiodpicker.extend({
         name: 'syn.uicontrols.$dateperiodpicker',
-        version: 'v2025.5.22',
+        version: 'v2026.10.1',
         dateControls: [],
         selectedYear: null,
         pkaStartDate: null,
         pkaEndDate: null,
-        periodPickerHtml: '<div class=card-body><div class="row g-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisYear>올해</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnUntilToday>오늘까지</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnToday>오늘</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousDay>전일</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnWeekly>주간</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousWeek>전주</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisMonth>당월</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousMonth>이전달</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousYear>전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnTwoYearAgo>전전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter1>1분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter2>2분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter3>3분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter4>4분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnFirstHalf>상반기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnSecondHalf>하반기</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><div class="w-100 btn-group"role=group><input id=_DatePeriodPicker_chkPeriodMonth1 type=checkbox class=btn-check value=01> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth1>1월</label> <input id=_DatePeriodPicker_chkPeriodMonth2 type=checkbox class=btn-check value=02> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth2>2월</label> <input id=_DatePeriodPicker_chkPeriodMonth3 type=checkbox class=btn-check value=03> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth3>3월</label> <input id=_DatePeriodPicker_chkPeriodMonth4 type=checkbox class=btn-check value=04> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth4>4월</label> <input id=_DatePeriodPicker_chkPeriodMonth5 type=checkbox class=btn-check value=05> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth5>5월</label> <input id=_DatePeriodPicker_chkPeriodMonth6 type=checkbox class=btn-check value=06> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth6>6월</label> <input id=_DatePeriodPicker_chkPeriodMonth7 type=checkbox class=btn-check value=07> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth7>7월</label> <input id=_DatePeriodPicker_chkPeriodMonth8 type=checkbox class=btn-check value=08> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth8>8월</label> <input id=_DatePeriodPicker_chkPeriodMonth9 type=checkbox class=btn-check value=09> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth9>9월</label> <input id=_DatePeriodPicker_chkPeriodMonth10 type=checkbox class=btn-check value=10> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth10>10월</label> <input id=_DatePeriodPicker_chkPeriodMonth11 type=checkbox class=btn-check value=11> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth11>11월</label> <input id=_DatePeriodPicker_chkPeriodMonth12 type=checkbox class=btn-check value=12> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth12>12월</label></div></div></div><div class="row mt-2"><div class="col pl-0"><div class=h:227 id=calStartDate></div><input id=_DatePeriodPicker_txtStartDate type=hidden></div><div class="col pl-0"><div class=h:227 id=calEndDate></div><input id=_DatePeriodPicker_txtEndDate type=hidden></div></div></div><div class="p-2 card-footer"><div class="row align-items-center"><div class=col>선택기간: <span id=spnPeriodDate>0일</span></div><div class=col-auto><div class="btn-list flex-nowrap"><button class="btn w-100"id=_DatePeriodPicker_btnReset>기간 선택 취소</button><button class="btn w-100 btn-primary"id=_DatePeriodPicker_btnConfirm>확인</button></div></div></div></div>',
+        dateTimeFormat: 'YYYY-MM-DD HH:mm',
+        dateTimeParseFormats: ['YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DDTHH:mm', 'YYYY-MM-DDTHH:mm:ss', 'YYYY-MM-DD'],
+        periodPickerHtml: '<div class=card-body><div class="row g-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisYear>올해</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnUntilToday>오늘까지</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnToday>오늘</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousDay>전일</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnWeekly>주간</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousWeek>전주</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisMonth>당월</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousMonth>이전달</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousYear>전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnTwoYearAgo>전전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter1>1분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter2>2분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter3>3분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter4>4분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnFirstHalf>상반기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnSecondHalf>하반기</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><div class="w-100 btn-group"role=group><input id=_DatePeriodPicker_chkPeriodMonth1 type=checkbox class=btn-check value=01> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth1>1월</label> <input id=_DatePeriodPicker_chkPeriodMonth2 type=checkbox class=btn-check value=02> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth2>2월</label> <input id=_DatePeriodPicker_chkPeriodMonth3 type=checkbox class=btn-check value=03> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth3>3월</label> <input id=_DatePeriodPicker_chkPeriodMonth4 type=checkbox class=btn-check value=04> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth4>4월</label> <input id=_DatePeriodPicker_chkPeriodMonth5 type=checkbox class=btn-check value=05> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth5>5월</label> <input id=_DatePeriodPicker_chkPeriodMonth6 type=checkbox class=btn-check value=06> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth6>6월</label> <input id=_DatePeriodPicker_chkPeriodMonth7 type=checkbox class=btn-check value=07> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth7>7월</label> <input id=_DatePeriodPicker_chkPeriodMonth8 type=checkbox class=btn-check value=08> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth8>8월</label> <input id=_DatePeriodPicker_chkPeriodMonth9 type=checkbox class=btn-check value=09> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth9>9월</label> <input id=_DatePeriodPicker_chkPeriodMonth10 type=checkbox class=btn-check value=10> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth10>10월</label> <input id=_DatePeriodPicker_chkPeriodMonth11 type=checkbox class=btn-check value=11> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth11>11월</label> <input id=_DatePeriodPicker_chkPeriodMonth12 type=checkbox class=btn-check value=12> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth12>12월</label></div></div></div><div class="row mt-2"><div class="col pl-0"><div class=h:227 id=calStartDate></div><div class=pika-time id=_DatePeriodPicker_divStartTime style="display:none"><span>시작 시간</span><select class=pika-select id=_DatePeriodPicker_selStartHour aria-label="시"></select><span class=pika-time-separator>:</span><select class=pika-select id=_DatePeriodPicker_selStartMinute aria-label="분"></select></div><input id=_DatePeriodPicker_txtStartDate type=hidden></div><div class="col pl-0"><div class=h:227 id=calEndDate></div><div class=pika-time id=_DatePeriodPicker_divEndTime style="display:none"><span>종료 시간</span><select class=pika-select id=_DatePeriodPicker_selEndHour aria-label="시"></select><span class=pika-time-separator>:</span><select class=pika-select id=_DatePeriodPicker_selEndMinute aria-label="분"></select></div><input id=_DatePeriodPicker_txtEndDate type=hidden></div></div></div><div class="p-2 card-footer"><div class="row align-items-center"><div class=col>선택기간: <span id=spnPeriodDate>0일</span></div><div class=col-auto><div class="btn-list flex-nowrap"><button class="btn w-100"id=_DatePeriodPicker_btnReset>기간 선택 취소</button><button class="btn w-100 btn-primary"id=_DatePeriodPicker_btnConfirm>확인</button></div></div></div></div>',
         defaultSetting: {
             elID: '',
             width: '100%',
@@ -23,6 +25,8 @@
             maxDate: null,
             bound: false,
             format: 'YYYY-MM-DD',
+            useTime: false,
+            minuteStep: 1,
             ariaLabel: '날짜를 선택 하세요',
             i18n: {
                 previousMonth: '이전 달',
@@ -42,6 +46,10 @@
             endDataFieldID: '',
             startClassName: 'form-control',
             endClassName: 'form-control',
+            // true이면 시작·종료 입력, '~', 달력 버튼을 테두리 하나(form-control 모양) 안에 넣는다.
+            singleBox: true,
+            // 기간 선택 팝업 가로 정렬: 'auto'(오른쪽 공간이 모자라면 컨트롤 오른쪽 끝에 맞춰 왼쪽으로 연다), 'left', 'right'
+            popupAlign: 'auto',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -83,6 +91,7 @@
 
             var events = el.getAttribute('syn-events');
 
+            var editOptions = setting.useTime === true ? `editType: 'text', maskPattern: '9999-99-99 99:99'` : `editType: 'date', maskPattern: '9999-99-99'`;
             var textbox1ID = elID + '_StartedAt';
             var dataField1ID = setting.startDataFieldID || elID + '_StartedAt';
 
@@ -96,14 +105,14 @@
             textbox1.setAttribute('syn-datafield', dataField1ID);
 
             if ($string.isNullOrEmpty(setting.belongID) == true) {
-                textbox1.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string'}`);
+                textbox1.setAttribute('syn-options', `{${editOptions}, dataType: 'string'}`);
             }
             else {
                 if ($object.isArray(setting.belongID) == true) {
-                    textbox1.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
+                    textbox1.setAttribute('syn-options', `{${editOptions}, dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
                 }
                 else {
-                    textbox1.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '${setting.belongID}'}`);
+                    textbox1.setAttribute('syn-options', `{${editOptions}, dataType: 'string', belongID: '${setting.belongID}'}`);
                 }
             }
 
@@ -112,6 +121,10 @@
             }
 
             syn.$m.insertAfter(textbox1, el);
+
+            if (setting.useTime === true) {
+                syn.$l.addEvent(textbox1, 'blur', $dateperiodpicker.validateDateTimeText);
+            }
 
             syn.$l.addEvent(textbox1, 'blur', (evt) => {
                 var elID = evt.currentTarget.id.replace('_StartedAt', '');
@@ -122,7 +135,7 @@
                 var textbox2Value = syn.$l.get(textbox2ID).value.trim();
 
                 if (textbox1Value > textbox2Value) {
-                    syn.$l.get(textbox1ID).value = textbox2Value || $date.toString(new Date(), 'd');
+                    syn.$l.get(textbox1ID).value = textbox2Value || $dateperiodpicker.todayText(setting.useTime === true);
                 }
             });
 
@@ -147,14 +160,14 @@
             textbox2.setAttribute('syn-datafield', dataField1ID);
 
             if ($string.isNullOrEmpty(setting.belongID) == true) {
-                textbox2.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string'}`);
+                textbox2.setAttribute('syn-options', `{${editOptions}, dataType: 'string'}`);
             }
             else {
                 if ($object.isArray(setting.belongID) == true) {
-                    textbox2.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
+                    textbox2.setAttribute('syn-options', `{${editOptions}, dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
                 }
                 else {
-                    textbox2.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '${setting.belongID}'}`);
+                    textbox2.setAttribute('syn-options', `{${editOptions}, dataType: 'string', belongID: '${setting.belongID}'}`);
                 }
             }
 
@@ -163,6 +176,10 @@
             }
 
             syn.$m.insertAfter(textbox2, span);
+
+            if (setting.useTime === true) {
+                syn.$l.addEvent(textbox2, 'blur', $dateperiodpicker.validateDateTimeText);
+            }
 
             syn.$l.addEvent(textbox2, 'blur', (evt) => {
                 var elID = evt.currentTarget.id.replace('_EndedAt', '');
@@ -173,7 +190,7 @@
                 var textbox2Value = syn.$l.get(textbox2ID).value.trim();
 
                 if (textbox1Value > textbox2Value) {
-                    syn.$l.get(textbox2ID).value = textbox1Value || $date.toString(new Date(), 'd');
+                    syn.$l.get(textbox2ID).value = textbox1Value || $dateperiodpicker.todayText(setting.useTime === true);
                 }
             });
 
@@ -188,6 +205,27 @@
             syn.uicontrols.$textbox.controlLoad(textbox1ID, eval('(' + syn.$l.get(textbox1ID).getAttribute('syn-options') + ')'));
             syn.uicontrols.$textbox.controlLoad(textbox2ID, eval('(' + syn.$l.get(textbox2ID).getAttribute('syn-options') + ')'));
 
+            if (setting.singleBox === true) {
+                // 바깥 테두리 하나(form-control) 안에 테두리 없는 시작·종료 입력, '~', 달력 버튼을 둔다. input-group 안에서는 form-control처럼 남은 너비를 차지한다.
+                var box = syn.$m.create({
+                    id: `${elID}_Box`,
+                    tag: 'div',
+                    className: 'form-control syn-dateperiod-single'
+                });
+                syn.$m.insertAfter(box, el);
+
+                syn.$m.addClass(textbox1, 'syn-dateperiod-input');
+                syn.$m.addClass(textbox2, 'syn-dateperiod-input');
+                span.className = 'syn-dateperiod-separator';
+                button.className = 'btn btn-icon syn-dateperiod-button';
+                button.type = 'button';
+
+                box.appendChild(textbox1);
+                box.appendChild(span);
+                box.appendChild(textbox2);
+                box.appendChild(button);
+            }
+
             setting.field = el;
 
             if (syn.$l.get('divPeriodPicker') == null) {
@@ -201,6 +239,7 @@
                 divPeriodPicker.style.cssText = `box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5);`;
 
                 document.body.appendChild(divPeriodPicker);
+                $dateperiodpicker.fillTimeSelects();
 
                 syn.$l.addEvent('_DatePeriodPicker_btnThisYear', 'click', $dateperiodpicker._DatePeriodPicker_btnThisYear_click);
                 syn.$l.addEvent('_DatePeriodPicker_btnUntilToday', 'click', $dateperiodpicker._DatePeriodPicker_btnUntilToday_click);
@@ -267,7 +306,7 @@
 
                             var selectFunction = '{0}_onselect'.format(elID);
                             if (events && events.includes('onselect') && mod && mod.event[selectFunction]) {
-                                mod.event[selectFunction](elID, 'startedAt', date);
+                                mod.event[selectFunction](elID, 'startedAt', $dateperiodpicker.withTime(control, 'Start', date));
                             }
                         }
                     }
@@ -306,7 +345,7 @@
 
                             var selectFunction = '{0}_onselect'.format(elID);
                             if (events && events.includes('onselect') && mod && mod.event[selectFunction]) {
-                                mod.event[selectFunction](elID, 'endedAt', date);
+                                mod.event[selectFunction](elID, 'endedAt', $dateperiodpicker.withTime(control, 'End', date));
                             }
                         }
                     }
@@ -430,22 +469,23 @@
                     date = $date.addYear(new Date(), number);
                 }
 
+                var useTime = setting.useTime === true;
                 if (number < 0) {
                     if (date) {
                         var textbox1 = syn.$l.get(textbox1ID);
-                        textbox1.value = $date.toString(date, 'd');
+                        textbox1.value = $dateperiodpicker.formatText(date, useTime, '00:00');
 
                         var textbox2 = syn.$l.get(textbox2ID);
-                        textbox2.value = $date.toString(new Date(), 'd');
+                        textbox2.value = $dateperiodpicker.formatText(new Date(), useTime, '23:59');
                     }
                 }
                 else {
                     if (date) {
                         var textbox1 = syn.$l.get(textbox1ID);
-                        textbox1.value = $date.toString(new Date(), 'd');
+                        textbox1.value = $dateperiodpicker.formatText(new Date(), useTime, '00:00');
 
                         var textbox2 = syn.$l.get(textbox2ID);
-                        textbox2.value = $date.toString(date, 'd');
+                        textbox2.value = $dateperiodpicker.formatText(date, useTime, '23:59');
                     }
                 }
             }
@@ -464,12 +504,14 @@
                     $dateperiodpicker.pkaEndDate.setDate(endDate);
 
                     $dateperiodpicker.setDateRange(startDate, endDate);
+                    $dateperiodpicker.preparePopupTime(control, textbox1.value, textbox2.value);
                 }
                 else {
                     $dateperiodpicker.pkaStartDate.setDate(today);
                     $dateperiodpicker.pkaEndDate.setDate(today);
 
                     $dateperiodpicker.setDateRange(today, today);
+                    $dateperiodpicker.preparePopupTime(null);
                 }
 
                 $dateperiodpicker.checkPeriodMonth();
@@ -488,36 +530,134 @@
             }
         },
 
+        todayText(useTime) {
+            return useTime == true ? moment().format($dateperiodpicker.dateTimeFormat) : $date.toString(new Date(), 'd');
+        },
+
+        formatText(date, useTime, time) {
+            var text = $date.toString(date, 'd');
+            return useTime == true ? `${text} ${time}` : text;
+        },
+
+        validateDateTimeText(evt) {
+            var textbox = evt.currentTarget;
+            var value = textbox.value.trim();
+            if (value.length > 0) {
+                textbox.setAttribute('placeholder', '');
+                if (moment(value, $dateperiodpicker.dateTimeFormat, true).isValid() == false) {
+                    textbox.setAttribute('placeholder', '일시 확인 필요');
+                    textbox.value = '';
+                }
+            }
+        },
+
+        fillTimeSelects() {
+            ['Start', 'End'].forEach(function (name) {
+                var hourSelect = syn.$l.get(`_DatePeriodPicker_sel${name}Hour`);
+                var options = [];
+                for (var i = 0; i < 24; i++) {
+                    options.push(`<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')}</option>`);
+                }
+                hourSelect.innerHTML = options.join('');
+            });
+        },
+
+        getPopupTime(name) {
+            return `${syn.$l.get(`_DatePeriodPicker_sel${name}Hour`).value}:${syn.$l.get(`_DatePeriodPicker_sel${name}Minute`).value}`;
+        },
+
+        setPopupTime(name, time, step) {
+            var parts = time.split(':');
+            var hour = String(parseInt(parts[0], 10) || 0).padStart(2, '0');
+            var minute = parseInt(parts[1], 10) || 0;
+
+            var minutes = [];
+            for (var i = 0; i < 60; i += step) {
+                minutes.push(i);
+            }
+
+            if (minutes.includes(minute) == false) {
+                minutes.push(minute);
+                minutes.sort(function (a, b) { return a - b; });
+            }
+
+            var minuteSelect = syn.$l.get(`_DatePeriodPicker_sel${name}Minute`);
+            minuteSelect.innerHTML = minutes.map(function (i) {
+                var text = String(i).padStart(2, '0');
+                return `<option value="${text}">${text}</option>`;
+            }).join('');
+
+            syn.$l.get(`_DatePeriodPicker_sel${name}Hour`).value = hour;
+            minuteSelect.value = String(minute).padStart(2, '0');
+        },
+
+        preparePopupTime(control, startedAtText, endedAtText) {
+            var useTime = control && control.setting.useTime === true;
+            ['Start', 'End'].forEach(function (name) {
+                syn.$l.get(`_DatePeriodPicker_div${name}Time`).style.display = useTime == true ? 'flex' : 'none';
+            });
+
+            if (useTime == true) {
+                var step = Math.max(1, parseInt(control.setting.minuteStep, 10) || 1);
+                var started = moment(startedAtText, $dateperiodpicker.dateTimeParseFormats, true);
+                var ended = moment(endedAtText, $dateperiodpicker.dateTimeParseFormats, true);
+                $dateperiodpicker.setPopupTime('Start', started.isValid() == true ? started.format('HH:mm') : '00:00', step);
+                $dateperiodpicker.setPopupTime('End', ended.isValid() == true ? ended.format('HH:mm') : '23:59', step);
+            }
+        },
+
+        withTime(control, name, date) {
+            if (control && control.setting.useTime === true && date) {
+                var parts = $dateperiodpicker.getPopupTime(name).split(':');
+                var result = new Date(date.getTime());
+                result.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+                return result;
+            }
+
+            return date;
+        },
+
         showPopup(elID) {
             var control = $dateperiodpicker.getControl(elID);
             if (control) {
                 var textbox = syn.$l.get(control.textbox1ID);
                 var popup = syn.$l.get('divPeriodPicker');
                 popup.setAttribute('elID', elID);
-                var rect = textbox.getBoundingClientRect();
 
+                // 컨트롤 전체(시작 입력 ~ 달력 버튼)의 영역. singleBox이면 바깥 상자, 아니면 시작 입력과 버튼을 합친 영역이다.
+                var box = syn.$l.get(`${elID}_Box`);
+                var button = syn.$l.get(`${elID}_Button`);
+                var rect = (box || textbox).getBoundingClientRect();
+                var anchorLeft = rect.left;
+                var anchorRight = box ? rect.right : (button ? button.getBoundingClientRect().right : rect.right);
+
+                // 보이지 않게 펼쳐 크기를 잰 뒤 자리를 잡는다. 화면 밖에 먼저 그려져 스크롤이 생겼다 사라지며 흔들리는 것을 막는다.
+                popup.style.visibility = 'hidden';
+                popup.style.top = '0px';
+                popup.style.left = '0px';
                 syn.$m.removeClass(popup, 'hidden');
 
-                var positions = [
-                    { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX },
-                    { top: rect.top + window.scrollY - popup.offsetHeight, left: rect.left + window.scrollX }
-                ];
+                var popupWidth = popup.offsetWidth;
+                var popupHeight = popup.offsetHeight;
+                var viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+                var viewportHeight = document.documentElement.clientHeight || window.innerHeight;
 
-                var bestPosition = positions[0];
-                var viewportWidth = window.innerWidth;
-                var viewportHeight = window.innerHeight;
+                var setting = control.setting || {};
+                var align = setting.popupAlign || 'auto';
+                var left = anchorLeft;
+                if (align == 'right' || (align == 'auto' && anchorLeft + popupWidth > viewportWidth)) {
+                    left = anchorRight - popupWidth;
+                }
+                left = Math.max(0, Math.min(left, viewportWidth - popupWidth));
 
-                for (var i = 0; i < positions.length; i++) {
-                    var pos = positions[i];
-                    if (pos.left >= 0 && pos.left + popup.offsetWidth <= viewportWidth &&
-                        pos.top >= 0 && pos.top + popup.offsetHeight <= viewportHeight) {
-                        bestPosition = pos;
-                        break;
-                    }
+                var top = rect.bottom;
+                if (top + popupHeight > viewportHeight && rect.top - popupHeight >= 0) {
+                    top = rect.top - popupHeight;
                 }
 
-                popup.style.top = bestPosition.top + 'px';
-                popup.style.left = bestPosition.left + 'px';
+                popup.style.top = (top + window.scrollY) + 'px';
+                popup.style.left = (left + window.scrollX) + 'px';
+                popup.style.visibility = '';
             }
         },
 
@@ -916,12 +1056,20 @@
                 if (control) {
                     var startedAt = $dateperiodpicker.pkaStartDate.getDate();
                     var endedAt = $dateperiodpicker.pkaEndDate.getDate();
+                    var useTime = control.setting.useTime === true;
+                    var startTime = $dateperiodpicker.getPopupTime('Start');
+                    var endTime = $dateperiodpicker.getPopupTime('End');
+
+                    if (useTime == true && $date.toString(startedAt, 'd') == $date.toString(endedAt, 'd') && startTime > endTime) {
+                        syn.$w.alert('시작일시가 종료일시 보다 클 수 없습니다.');
+                        return;
+                    }
 
                     var textbox1 = syn.$l.get(control.textbox1ID);
-                    textbox1.value = $date.toString(startedAt, 'd');
+                    textbox1.value = $dateperiodpicker.formatText(startedAt, useTime, startTime);
 
                     var textbox2 = syn.$l.get(control.textbox2ID);
-                    textbox2.value = $date.toString(endedAt, 'd');
+                    textbox2.value = $dateperiodpicker.formatText(endedAt, useTime, endTime);
 
                     var mod = window[syn.$w.pageScript];
                     var events = eval(textbox1.getAttribute('syn-events'));

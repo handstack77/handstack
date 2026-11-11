@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        MediaPlayer 재생목록 예제
+    </title>
+    <link rel="stylesheet" href="mediaplayerdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1" syn-datafield="MainForm">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <div class="demo-card">
+            <h3>
+                객체 배열과 미디어별 상세 이력
+            </h3>
+            <p>
+                동영상·오디오 목록을 순서대로 재생하고 실제 재생한 행만 Row/List로 반환합니다.
+            </p>
+            <syn_mediaplayer id="mpPlaylist" class="demo-player" syn-datafield="Playlist"
+                             syn-events="['dataBound','mediaChange','completed','playlistEnded','historyChange']"
+                             syn-options="{ playlist:{visible:'always',position:'right',autoAdvance:true,repeat:'none'}, preserveHistory:true }">
+            </syn_mediaplayer>
+            <div class="demo-actions">
+                <input type="button" id="btnPrevious" value="이전" syn-events="['click']">
+                <input type="button" id="btnNext" value="다음" syn-events="['click']">
+                <input type="button" id="btnRow" value="getValue Row" syn-events="['click']">
+                <input type="button" id="btnList" value="getValue List" syn-events="['click']">
+                <input type="button" id="btnDetails" value="상세 List" syn-events="['click']">
+                <input type="button" id="btnReset" value="이력 초기화" syn-events="['click']">
+            </div>
+            <pre id="preResult">
+재생 후 Row/List를 조회하세요.
+				</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

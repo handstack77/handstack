@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>하위 메뉴(children) 구성하기</div>
+            <p>"More" 항목에 마우스를 올리면 하위 메뉴가 펼쳐집니다.</p>
+            <ul id="ulTarget" style="width:300px;">
+                <li class="menu-item" style="list-style:none; padding:8px; background:#eee; border:1px solid #ccc; margin-bottom:4px; cursor:context-menu;">항목 A (우클릭)</li>
+                <li class="menu-item" style="list-style:none; padding:8px; background:#eee; border:1px solid #ccc; cursor:context-menu;">항목 B (우클릭)</li>
+            </ul>
+
+            <syn_contextmenu id="ctxNested" syn-options="{
+                target: '#ulTarget',
+                delegate: 'li.menu-item',
+                menu: [
+                    { title: 'Cut', cmd: 'cut' },
+                    { title: 'Copy', cmd: 'copy', uiIcon: 'ui-icon-copy' },
+                    { title: '---' },
+                    {
+                        title: 'More', children: [
+                            { title: '이름 변경', cmd: 'rename' },
+                            { title: '속성', children: [
+                                { title: '읽기 전용', cmd: 'readonly' },
+                                { title: '숨김', cmd: 'hidden' }
+                            ] }
+                        ]
+                    },
+                    { title: '---' },
+                    { title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-trash' }
+                ]
+            }" syn-events="['beforeOpen', 'select']"></syn_contextmenu>
+        </div>
+        <hr />
+        <div>
+            <div>선택한 메뉴(cmd)</div>
+            <pre id="preResult">(메뉴를 선택하면 여기에 표시됩니다)</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

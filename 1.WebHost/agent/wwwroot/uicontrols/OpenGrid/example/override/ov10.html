@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-10 출력·배열변환 후처리 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-10 · 출력·배열변환 후처리</h2>
+    <p class="desc">grid.override("getAddedRows", ...)로 반환 배열에 후처리(내보낸 시각 필드 추가)를 적용합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv10_add">행 추가</button>
+        <button type="button" id="grdOv10_check">추가된 행 조회(후처리됨)</button>
+    </div>
+    <syn_opengrid id="grdOv10" class="demo-grid" syn-options="{
+        columns: [['MemberNo', '번호', 70, false, 'number', true, 'center'], ['MemberName', '이름', 120, false, 'text']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov10.js"></script>
+</body>
+</html>

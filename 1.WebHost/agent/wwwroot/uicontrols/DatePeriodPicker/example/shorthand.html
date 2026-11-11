@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePeriodPicker - value 축약 표기 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>value</code> 옵션에 <code>'day:N'</code>, <code>'week:N'</code>, <code>'month:N'</code>, <code>'year:N'</code>, <code>'now'</code> 축약 표기를 지정하면, 컨트롤이 로드될 때 오늘 날짜를 기준으로 시작일/종료일 입력창이 자동으로 채워집니다. 숫자가 음수이면 "N만큼 이전 ~ 오늘", 0 이상이면 "오늘 ~ N만큼 이후"로 채워집니다.</p>
+            <div>
+                <label>최근 7일 (day:-7)</label>
+                <syn_dateperiodpicker id="dtpLast7Days" syn-datafield="Last7Days" syn-options="{value: 'day:-7'}"></syn_dateperiodpicker>
+            </div>
+            <div>
+                <label>오늘부터 3개월간 (month:3), 별도 데이터필드 매핑</label>
+                <syn_dateperiodpicker id="dtpAlertPeriod" syn-datafield="AlertPeriod" syn-options="{
+                    value: 'month:3',
+                    startDataFieldID: 'AlertStartedDate',
+                    endDataFieldID: 'AlertEndedDate'
+                }"></syn_dateperiodpicker>
+            </div>
+            <div>
+                <label>오늘 하루 (now)</label>
+                <syn_dateperiodpicker id="dtpToday" syn-datafield="TodayOnly" syn-options="{value: 'now'}"></syn_dateperiodpicker>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

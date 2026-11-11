@@ -1,0 +1,649 @@
+syn_filtertagtextlist {
+	display: block;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.syn-filtertagtextlist {
+    position: relative;
+    min-width: 0;
+    color: #334155;
+}
+
+    .syn-filtertagtextlist .ts-wrapper {
+        width: 100%;
+    }
+
+    .syn-filtertagtextlist .ts-control {
+        /* 한 줄 기본 높이를 Tabler form-control(예: #txtUserName)과 같은 공식(줄 높이 + 위아래 패딩 + 테두리 2px)으로 맞춘다. 14px 글꼴에서 36px이다. */
+        min-height: calc(1.4285714286em + 0.875rem + 2px);
+        padding: 2px 0.4rem 2px !important;
+        gap: 5px;
+        row-gap: 9px;
+        align-items: center;
+        overflow: visible;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+    }
+
+    /* 배지를 숨긴 컨트롤(hideLogicBadge:true, 기본값)은 배지가 튀어나올 자리인 태그 위쪽 여백을 없애고 줄 간격을 일반 간격(5px)으로 줄인다. */
+    .syn-filtertagtextlist.dttl-hide-badge .ts-control {
+        row-gap: 5px;
+    }
+
+    .syn-filtertagtextlist.dttl-hide-badge .ts-wrapper .ts-control > .dttl-item {
+        margin-top: 0;
+    }
+
+    .syn-filtertagtextlist .focus .ts-control {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 3px #0d6efd30;
+    }
+
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item {
+        position: relative;
+        overflow: visible;
+        display: inline-flex;
+        align-items: stretch;
+        margin: 7px 0 0;
+        padding: 0;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
+        border-radius: 4px;
+        color: #334155;
+    }
+
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.active {
+        background-color: var(--tblr-blue-lt, #e6f1fb);
+        border: 1px solid var(--tblr-blue, #066fd1);
+        border-left: 4px solid var(--dttl-operator-color, var(--tblr-blue, #066fd1));
+        color: #334155;
+        box-shadow: 0 0 0 2px var(--tblr-blue-lt, #e6f1fb);
+    }
+
+    /* options에 없는 입력(일반 텍스트): 점선 테두리와 흰 배경, 기울인 이름표(key 또는 '텍스트')로 일반 후보와 구분한다.
+       조건 색을 보여주는 왼쪽 4px 테두리는 숨기고 다른 변과 같은 1px 점선 테두리로 맞춘다. */
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-normal {
+        background: #fff;
+        border-style: dashed;
+        border-left: 1px dashed #cbd5e1;
+        background-color: var(--tblr-danger-bg-subtle)!important;
+    }
+
+    .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-normal.active {
+        background-color: var(--tblr-blue-lt, #e6f1fb);
+        border-style: dashed;
+        border-left: 1px dashed var(--tblr-blue, #066fd1);
+    }
+
+    .syn-filtertagtextlist .dttl-normal .dttl-group {
+        background-color: transparent;
+    }
+
+    .syn-filtertagtextlist .dttl-item button {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    /* conditionEditable:false인 태그는 조건 편집창이 열리지 않으므로 클릭 가능한 모양을 쓰지 않는다. */
+    .syn-filtertagtextlist .dttl-fixed .dttl-group,
+    .syn-filtertagtextlist .dttl-fixed .dttl-edit {
+        cursor: default;
+    }
+
+    .syn-filtertagtextlist .dttl-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 3px 7px;
+    }
+
+    .syn-filtertagtextlist .dttl-group {
+        display: inline-flex;
+        align-items: center;
+        max-width: 10rem;
+        padding: 3px 7px;
+        border-right: 1px solid var(--tblr-border-color, #e2e8f0);
+        background-color: var(--tblr-bg-surface-secondary, #f6f8fb);
+        color: var(--tblr-secondary, #667382);
+        font-size: 12px;
+        overflow-wrap: anywhere;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    /* groupDisplay 기본값('tooltip')과 range 그룹의 태그는 그룹 이름을 숨기고 태그의 title 툴팁으로만 보여준다. */
+    .syn-filtertagtextlist .dttl-item.dttl-group-tooltip > .dttl-group {
+        display: none;
+    }
+
+    .syn-filtertagtextlist .dttl-logic-badge {
+        position: absolute;
+        top: -8px;
+        left: -4px;
+        z-index: 1;
+        padding: 1px 4px;
+        border-radius: 3px;
+        background-color: var(--dttl-logic-color, var(--tblr-blue, #066fd1));
+        color: var(--tblr-white, #fff);
+        font-size: 9px;
+        line-height: 13px;
+        pointer-events: none;
+    }
+
+    /* 배지는 AND/OR 뒤에 일반 텍스트의 key 또는 groupDisplay:'badge'인 후보의 그룹 이름을 이어서 보여준다. 길면 그 부분만 줄임표로 자르며 전체는 태그의 title 툴팁으로 확인한다. */
+    .syn-filtertagtextlist .dttl-item .dttl-logic-badge {
+        display: flex;
+        max-width: calc(100% + 4px);
+        white-space: nowrap;
+    }
+
+    .syn-filtertagtextlist .dttl-logic-badge .dttl-badge-key {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: pre;
+    }
+
+    .syn-filtertagtextlist [data-dttl-logic="AND"] {
+        --dttl-logic-color: var(--tblr-blue, #066fd1);
+    }
+
+    .syn-filtertagtextlist [data-dttl-logic="OR"] {
+        --dttl-logic-color: var(--tblr-red, #d63939);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="eq"] {
+        --dttl-operator-color: var(--tblr-blue, #066fd1);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="lt"] {
+        --dttl-operator-color: var(--tblr-green, #2fb344);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="gt"] {
+        --dttl-operator-color: var(--tblr-pink, #d6336c);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="lte"] {
+        --dttl-operator-color: var(--tblr-cyan, #17a2b8);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="gte"] {
+        --dttl-operator-color: var(--tblr-orange, #f76707);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="neq"] {
+        --dttl-operator-color: var(--tblr-red, #d63939);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="begins_with"] {
+        --dttl-operator-color: var(--tblr-gray-600, #4b5563);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="ends_with"] {
+        --dttl-operator-color: var(--tblr-purple, #ae3ec9);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="contains"] {
+        --dttl-operator-color: var(--tblr-teal, #0ca678);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist [data-dttl-operator="not_contains"] {
+        --dttl-operator-color: var(--tblr-indigo, #4263eb);
+        --dttl-operator-text: var(--tblr-white, #fff);
+    }
+
+    .syn-filtertagtextlist .dttl-remove {
+        padding: 0 6px;
+        border-left: 1px solid #e2e8f0 !important;
+    }
+
+    .syn-filtertagtextlist button:focus-visible,
+    .syn-filtertagtextlist .dttl-group:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
+    }
+
+    .syn-filtertagtextlist .ts-dropdown {
+        z-index: 1100;
+        background-color: #fff;
+        border-color: #cbd5e1;
+    }
+
+        /* 목록 위쪽의 그룹 이동 버튼 줄. width:0, min-width:100%로 버튼 폭이 드롭다운의 자동 너비 계산에 영향을 주지 않게 하고 넘치면 가로로 스크롤한다. */
+        .syn-filtertagtextlist .ts-dropdown .dttl-group-nav {
+            display: flex;
+            box-sizing: border-box;
+            width: 0;
+            min-width: 100%;
+            padding: 6px 8px;
+            overflow-x: auto;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            scrollbar-width: thin;
+        }
+
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav[hidden] {
+                display: none;
+            }
+
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .btn-group {
+                flex: 0 0 auto;
+            }
+
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .btn {
+                white-space: nowrap;
+            }
+
+            /* rangeLayout:'nav'의 범위 버튼. 범위가 선택된 그룹은 파란 테두리와 연한 파란 배경으로 표시한다(그룹 이동의 active와 구분). */
+            .syn-filtertagtextlist .ts-dropdown .dttl-group-nav .dttl-nav-range.dttl-range-active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+        /* groupNavMode:'menu'의 그룹 버튼 줄. 입력 영역 안쪽 왼쪽 첫 칸에 고정하고, 누른 버튼 아래에 그 그룹의 목록을 연다.
+           DOM에서는 항목 뒤(맨 끝)에 있고 order로 화면의 맨 앞에 보인다(TomSelect가 앞쪽 형제 요소의 개수로 항목 위치를 계산하기 때문). */
+        .syn-filtertagtextlist .ts-control > .dttl-group-nav.dttl-nav-inline {
+            order: -1;
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+            .syn-filtertagtextlist .ts-control > .dttl-group-nav.dttl-nav-inline[hidden] {
+                display: none;
+            }
+
+            .syn-filtertagtextlist .ts-control > .dttl-group-nav.dttl-nav-inline {
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .btn-group {
+                flex: 0 1 auto;
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            /* 버튼 세로 크기는 28px로 고정한다. 선택한 값을 이어 붙이면 길어지므로 글자(.dttl-nav-text)만 줄임표로 자르고 화살표는 남긴다. */
+            .syn-filtertagtextlist .dttl-nav-inline .btn {
+                display: inline-flex;
+                flex: 0 1 auto;
+                align-items: center;
+                box-sizing: border-box;
+                min-width: 3rem;
+                max-width: 18rem;
+                height: 28px;
+                min-height: 28px;
+                padding-top: 0;
+                padding-bottom: 0;
+                white-space: nowrap;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .dttl-nav-text {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* selectedDisplay:'text'에서 값을 선택한 그룹 버튼 */
+            .syn-filtertagtextlist .dttl-nav-inline .btn.dttl-has-value {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+            /* 목록을 여는 그룹 버튼의 화살표. 목록이 열려 있으면 위로 뒤집는다. */
+            .syn-filtertagtextlist .dttl-nav-inline button[data-group]::after {
+                content: '';
+                display: inline-block;
+                margin-left: .4em;
+                border: 4px solid transparent;
+                border-top-color: currentColor;
+                border-bottom-width: 0;
+                vertical-align: middle;
+                flex: 0 0 auto;
+                transition: transform .15s;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline button[data-group].active::after {
+                transform: rotate(180deg);
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .btn.active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+            /* 버튼 그룹은 이웃 버튼과 테두리가 겹치도록 음수 margin을 쓰므로, 파란 테두리가 이웃의 회색 선에 가려지지 않게 위로 올린다. */
+            .syn-filtertagtextlist .dttl-nav-inline .btn.dttl-has-value,
+            .syn-filtertagtextlist .dttl-nav-inline .btn.active,
+            .syn-filtertagtextlist .dttl-nav-inline .dttl-nav-range.dttl-range-active {
+                position: relative;
+                z-index: 3;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .btn:disabled {
+                opacity: .5;
+                cursor: default;
+            }
+
+            .syn-filtertagtextlist .dttl-nav-inline .dttl-nav-range.dttl-range-active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+                color: var(--tblr-blue, #066fd1);
+            }
+
+        /* selectedDisplay:'text'에서 그룹 버튼의 글자로 보여주는 선택 항목의 태그는 숨긴다. */
+        .syn-filtertagtextlist .ts-wrapper .ts-control > .dttl-item.dttl-item-hidden {
+            display: none;
+        }
+
+        /* selectedDisplay:'text'의 목록은 선택한 후보를 남겨 두므로 체크 표시로 구분하고, 다시 누르면 해제된다. */
+        .syn-filtertagtextlist.dttl-select-text .ts-dropdown .option.selected {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+            /* Tabler Icons의 check(M5 12l5 5l10 -10, stroke 2, 둥근 끝)를 마스크로 그려 글자색(--tblr-blue)을 따른다. */
+            .syn-filtertagtextlist.dttl-select-text .ts-dropdown .option.selected::after {
+                content: '';
+                flex: 0 0 auto;
+                width: 1.125rem;
+                height: 1.125rem;
+                margin-left: 12px;
+                background-color: var(--tblr-blue, #066fd1);
+                -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E") center / contain no-repeat;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5l10 -10'/%3E%3C/svg%3E") center / contain no-repeat;
+            }
+
+        /* 그룹 버튼 아래에 열린 목록은 그룹 이름이 버튼에 이미 있으므로 헤더를 숨긴다. */
+        .syn-filtertagtextlist .ts-dropdown.dttl-group-menu .optgroup-header {
+            display: none;
+        }
+
+        .syn-filtertagtextlist .ts-dropdown .optgroup-header {
+            font-size: 12px;
+            color: #64748b;
+            background: #fafbfc;
+            border-top: 1px solid #e2e8f0;
+            /* 목록이 세로로 스크롤될 때 현재 그룹의 헤더를 상단에 고정한다. 다음 그룹의 헤더가 올라오면 밀려난다.
+               .ts-dropdown-content의 위쪽 여백(5px)만큼 올려 헤더 위로 옵션이 비치지 않게 한다. */
+            position: sticky;
+            top: -5px;
+            z-index: 1;
+        }
+
+        .syn-filtertagtextlist .ts-dropdown .active {
+            color: #334155;
+            background: #eff6ff;
+        }
+
+    .syn-filtertagtextlist .locked .dttl-item button {
+        pointer-events: none;
+    }
+
+    .syn-filtertagtextlist .locked .dttl-group {
+        cursor: default;
+    }
+
+    .syn-filtertagtextlist .disabled {
+        opacity: .6;
+    }
+
+    .syn-filtertagtextlist .dttl-editor {
+        position: absolute;
+        box-sizing: border-box;
+        top: 0;
+        left: 0;
+        z-index: 1100;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 10px;
+        padding: 14px;
+        margin: 0;
+        max-width: 100%;
+        overflow: auto;
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px #0f172a26;
+    }
+
+        .syn-filtertagtextlist .dttl-editor label {
+            display: grid;
+            gap: 5px;
+            font-size: 12px;
+        }
+
+        .syn-filtertagtextlist .dttl-editor select, .syn-filtertagtextlist .dttl-editor button:not(.btn) {
+            min-height: 34px;
+            padding: 5px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+        }
+
+        .syn-filtertagtextlist .dttl-editor button.dttl-apply:not(.btn) {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        /* 조건 편집창의 적용·취소는 Tabler btn-group이며 높이를 콤보박스(34px)와 같게 맞춘다. */
+        .syn-filtertagtextlist .dttl-editor select,
+        .syn-filtertagtextlist .dttl-editor .btn-group > .btn {
+            box-sizing: border-box;
+            height: 34px;
+        }
+
+        .syn-filtertagtextlist .dttl-editor .btn-group > .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 0;
+            padding-bottom: 0;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .syn-filtertagtextlist .dttl-editor select[data-dttl-logic],
+        .syn-filtertagtextlist .dttl-editor option[data-dttl-logic] {
+            background-color: var(--dttl-logic-color);
+            color: var(--tblr-white, #fff);
+        }
+
+        .syn-filtertagtextlist .dttl-editor select[data-dttl-operator],
+        .syn-filtertagtextlist .dttl-editor option[data-dttl-operator] {
+            background-color: var(--dttl-operator-color);
+            color: var(--dttl-operator-text);
+        }
+
+    .syn-filtertagtextlist .dttl-ranges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+        .syn-filtertagtextlist .dttl-ranges[hidden] {
+            display: none;
+        }
+
+        .syn-filtertagtextlist .dttl-ranges button {
+            min-height: 30px;
+            padding: 4px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #fff;
+            color: #334155;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+            .syn-filtertagtextlist .dttl-ranges button:disabled {
+                cursor: default;
+                opacity: .6;
+            }
+
+            .syn-filtertagtextlist .dttl-ranges button.dttl-range-active {
+                border-color: var(--tblr-blue, #066fd1);
+                background: var(--tblr-blue-lt, #e6f1fb);
+            }
+
+    /* 입력 영역 오른쪽 안에 범위 버튼을 겹쳐 배치한다. 폭이 좁으면 입력 영역 아래에 배치한다. */
+    .syn-filtertagtextlist.dttl-ranges-inline .dttl-ranges {
+        position: absolute;
+        top: 0;
+        right: 8px;
+        z-index: 2;
+        align-items: center;
+        height: 40px;
+        margin: 0;
+        flex-wrap: nowrap;
+        pointer-events: none;
+    }
+
+        .syn-filtertagtextlist.dttl-ranges-inline .dttl-ranges button {
+            pointer-events: auto;
+        }
+
+    .syn-filtertagtextlist.dttl-ranges-inline .ts-control {
+        padding-right: var(--dttl-ranges-width, 9px) !important;
+    }
+
+    .syn-filtertagtextlist .dttl-editor input {
+        box-sizing: border-box;
+        height: 34px;
+        min-height: 34px;
+        padding: 5px 10px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        background: #fff;
+        color: #334155;
+    }
+
+    .syn-filtertagtextlist .dttl-editor .dttl-range-error {
+        flex-basis: 100%;
+        color: var(--tblr-red, #d63939);
+        font-size: 12px;
+    }
+
+        .syn-filtertagtextlist .dttl-editor .dttl-range-error[hidden] {
+            display: none;
+        }
+
+    /* suggest 옵션의 2단 팝업. 1차(.dttl-suggest-groups)는 그룹과 일치 개수, 2차(.dttl-suggest-items)는 선택한 그룹의 값 목록이며 오른쪽에 이어 붙인다. */
+    .syn-filtertagtextlist .dttl-suggest {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1100;
+        display: flex;
+        align-items: flex-start;
+        gap: 4px;
+        width: max-content;
+        pointer-events: none;
+    }
+
+        .syn-filtertagtextlist .dttl-suggest[hidden] {
+            display: none;
+        }
+
+        /* suggestLevel:1은 2차 팝업(값 목록) 없이 1차 팝업만 보여준다. */
+        .syn-filtertagtextlist .dttl-suggest-single .dttl-suggest-items {
+            display: none;
+        }
+
+        .syn-filtertagtextlist .dttl-suggest .dttl-suggest-menu {
+            box-sizing: border-box;
+            min-width: 140px;
+            max-width: 320px;
+            max-height: 260px;
+            padding: 4px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px #0f172a26;
+            pointer-events: auto;
+            scrollbar-width: thin;
+        }
+
+        .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 5px 8px;
+            border-radius: 4px;
+            color: #334155;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row:hover,
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row.active {
+                background: #eff6ff;
+            }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row.active {
+                outline: 2px solid var(--tblr-blue, #066fd1);
+                outline-offset: -2px;
+            }
+
+            /* 2차 팝업에 값이 표시 중인 그룹 */
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-current {
+                background: var(--tblr-blue-lt, #e6f1fb);
+                font-weight: 600;
+            }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row[aria-disabled="true"] {
+                cursor: default;
+                opacity: .5;
+            }
+
+            /* 값 텍스트(강조 조각 포함)를 하나의 flex 항목으로 묶어 왼쪽부터 이어 붙인다. */
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-text {
+                flex: 1 1 auto;
+                min-width: 0;
+                text-align: left;
+            }
+
+            .syn-filtertagtextlist .dttl-suggest .dttl-suggest-row mark {
+                padding: 0;
+                background: #ffec99;
+                color: inherit;
+            }
+
+        .syn-filtertagtextlist .dttl-suggest .dttl-suggest-count {
+            padding: 0 6px;
+            border-radius: 8px;
+            background: #e2e8f0;
+            color: #64748b;
+            font-size: 11px;
+            line-height: 16px;
+        }

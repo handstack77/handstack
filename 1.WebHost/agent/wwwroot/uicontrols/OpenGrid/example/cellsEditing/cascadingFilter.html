@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>캐스케이딩 필터 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 셀 & 편집</div>
+    <h2>캐스케이딩 필터</h2>
+    <p class="desc">상위 선택(부서)이 하위 선택지를 좁히는 필터 패널입니다(setFilterSelect).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdCascadingFilter_attach">캐스케이딩 필터 패널 붙이기</button>
+        <button type="button" id="grdCascadingFilter_detach" class="secondary">패널 제거</button>
+    </div>
+    <syn_opengrid id="grdCascadingFilter" class="demo-grid" syn-options="{
+        columns: [
+            ['Department', '부서', 110, false, 'text'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="cascadingFilter.js"></script>
+</body>
+</html>

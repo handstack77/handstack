@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - 주문 접수 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">주문 관리 / 주문 접수</div>
+                                <h2 class="page-title">주문 접수</h2>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 주문 접수</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">주문 정보</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">주문 구분</label>
+                                    <div class="col align-content-center">
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoOrderType1" name="rdoOrderType" value="N" syn-events="['change']" checked>
+                                            <span class="form-check-label ml--1">일반 주문</span>
+                                        </label>
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoOrderType2" name="rdoOrderType" value="R" syn-events="['change']">
+                                            <span class="form-check-label ml--1">예약 주문</span>
+                                        </label>
+                                    </div>
+                                    <label class="col-2 col-form-label">수량</label>
+                                    <div class="col">
+                                        <input id="txtQuantity" type="text" class="form-control text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 1, maxCount: 99}" syn-events="['blur']" value="1">
+                                    </div>
+                                </div>
+                                <div id="rowReserveDate" class="row mb-2 hidden">
+                                    <label class="col-2 col-form-label required">예약 일자</label>
+                                    <div class="col">
+                                        <input id="txtReserveDate" type="text" class="form-control" syn-options="{editType: 'date', maskPattern: '9999-99-99', controlText: '예약 일자'}">
+                                    </div>
+                                    <div class="col-6"></div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">수령 방법</label>
+                                    <div class="col align-content-center">
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoDelivery1" name="rdoDelivery" value="PARCEL" syn-events="['change']" checked>
+                                            <span class="form-check-label ml--1">택배 배송</span>
+                                        </label>
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoDelivery2" name="rdoDelivery" value="QUICK" syn-events="['change']">
+                                            <span class="form-check-label ml--1">퀵 배송</span>
+                                        </label>
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoDelivery3" name="rdoDelivery" value="VISIT" syn-events="['change']">
+                                            <span class="form-check-label ml--1">매장 방문 수령</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="rowAddress" class="row mb-2">
+                                    <label class="col-2 col-form-label required">배송지</label>
+                                    <div class="col">
+                                        <input id="txtAddress" type="text" class="form-control" maxlengthB="200" syn-options="{editType: 'text', controlText: '배송지'}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">결제 정보</h3>
+                                <div class="card-actions">
+                                    <span id="spnTotalAmount" class="mr-2 fw-bold">결제 예정 금액 0원</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">결제 수단</label>
+                                    <div class="col align-content-center">
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoPay1" name="rdoPay" value="CARD" syn-events="['change']" checked>
+                                            <span class="form-check-label ml--1">신용카드</span>
+                                        </label>
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoPay2" name="rdoPay" value="TRANSFER" syn-events="['change']">
+                                            <span class="form-check-label ml--1">계좌이체</span>
+                                        </label>
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoPay3" name="rdoPay" value="DEPOSIT" syn-events="['change']">
+                                            <span class="form-check-label ml--1">무통장 입금</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="rowCard" class="row mb-2">
+                                    <label class="col-2 col-form-label">할부 개월</label>
+                                    <div class="col">
+                                        <input id="txtInstallment" type="text" class="form-control text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 0, maxCount: 24}" value="0">
+                                    </div>
+                                    <div class="col-6 col-form-label text-muted">0 은 일시불입니다.</div>
+                                </div>
+                                <div id="rowDeposit" class="row mb-2 hidden">
+                                    <label class="col-2 col-form-label required">입금자명</label>
+                                    <div class="col">
+                                        <input id="txtDepositor" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text', controlText: '입금자명'}">
+                                    </div>
+                                    <div class="col-6 col-form-label text-muted">입금 계좌: 신한 000-000-000000 (예시)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">접수 결과 (서버 전송 대신 화면에 표시)</h3>
+                            </div>
+                            <div class="card-body">
+                                <pre id="preResult" class="mb-0">주문 접수 버튼을 누르면 선택한 내용이 JSON 으로 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

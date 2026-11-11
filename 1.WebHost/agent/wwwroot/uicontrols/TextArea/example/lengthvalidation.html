@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TextArea 글자 수 제한 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>maxlength (문자 개수 기준, CodeMirror 모드에서는 편집 시점에 강제되지 않고 blur 시 알림)</div>
+            <textarea id="txtMaxlength"
+                      syn-options="{width: '500px', height: '100px'}"
+                      syn-events="[]"
+                      maxlength="10">여기에 10자 넘게 입력해보세요</textarea>
+        </div>
+        <hr />
+        <div>
+            <div>maxlengthB (바이트 기준, 한글 등 비영문 문자는 3바이트로 계산)</div>
+            <textarea id="txtMaxlengthB"
+                      syn-options="{width: '500px', height: '100px'}"
+                      syn-events="[]"
+                      maxlengthB="15">한글 5글자면 15바이트입니다</textarea>
+            <div>포커스를 벗어나면(blur) 지정한 바이트 수를 초과했는지 확인해 알림이 표시됩니다.</div>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetMaxlength" value="txtMaxlength 값 확인" syn-events="['click']" />
+            <input type="button" id="btnGetMaxlengthB" value="txtMaxlengthB 값 확인" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

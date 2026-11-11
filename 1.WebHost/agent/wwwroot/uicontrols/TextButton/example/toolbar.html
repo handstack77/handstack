@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TextButton - 실무 툴바 관례(아이콘/색상/삭제 확인)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>실무 화면 툴바 관례</h3>
+        <p>
+            실무 코드는 <code>$button</code>의 <code>toSynControl</code>/<code>color</code> 옵션보다, Tabler 버튼
+            클래스(<code>btn</code>, <code>btn-primary</code>, <code>btn-danger</code>)와 아이콘 클래스
+            (<code>ti ti-plus</code>, <code>ti ti-device-floppy</code>, <code>ti ti-trash</code>)를 마크업에 직접
+            적는 방식을 압도적으로 더 많이 씁니다. 삭제처럼 되돌릴 수 없는 동작은 항상 자바스크립트에서
+            <code>syn.$w.alert(...)</code>로 확인(Yes/No) 절차를 거친 뒤에만 실행합니다.
+        </p>
+
+        <div class="btn-list">
+            <button type="button" id="btnNew" class="btn" syn-events="['click']"><i class="f:20 ti ti-plus mr-1"></i> 신규</button>
+            <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-1"></i> 저장</button>
+            <button type="button" id="btnDelete" class="btn btn-danger" syn-events="['click']"><i class="f:20 ti ti-trash mr-1"></i>삭제</button>
+        </div>
+
+        <div class="btn-group mr-2">
+            <button type="button" id="btnAddRow" class="btn btn-icon" syn-events="['click']"><i class="f:18 ti ti-plus"></i></button>
+            <button type="button" id="btnRemoveRow" class="btn btn-icon" syn-events="['click']"><i class="f:18 ti ti-minus"></i></button>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

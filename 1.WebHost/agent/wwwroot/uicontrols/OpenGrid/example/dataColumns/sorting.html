@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>정렬 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 데이터 & 컬럼</div>
+    <h2>정렬</h2>
+    <p class="desc">헤더 클릭으로 정렬하거나, 버튼으로 코드에서 직접 정렬을 겁니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdSorting_sortAsc">Point 오름차순</button>
+        <button type="button" id="grdSorting_sortDesc">Point 내림차순</button>
+        <button type="button" id="grdSorting_clearSort" class="secondary">정렬 해제</button>
+    </div>
+    <syn_opengrid id="grdSorting" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Point', '포인트', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="sorting.js"></script>
+</body>
+</html>

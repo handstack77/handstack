@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>값 조회/설정 및 파일 관리 메서드 데모</div>
+            <p>getValue/setValue/clear로 컨트롤 값을 직접 다루고, getItem/getItems/deleteItem으로 업로드된 파일 정보를 조회·삭제합니다.</p>
+            조회할 ItemID - <input type="text" id="txtMethodsItemID" value="" />
+            <syn_fileclient id="sfcMethodsFile" syn-datafield="MethodsFile" syn-options="{
+                repositoryID: 'TSTLS01'
+            }"></syn_fileclient>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnMethodsGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnMethodsSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnMethodsClear" value="clear" syn-events="['click']" />
+            <input type="button" id="btnMethodsGetItem" value="getItem" syn-events="['click']" />
+            <input type="button" id="btnMethodsDeleteItem" value="deleteItem" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

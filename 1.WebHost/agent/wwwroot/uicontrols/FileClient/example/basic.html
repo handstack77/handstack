@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>기본 사용법 - 단일 파일 업로드</div>
+            <p>업로드 버튼을 클릭하면 팝업이 열립니다. 업로드가 끝나면 fileUpdateCallback으로 지정한 함수가 호출되고, 컨트롤 값(ItemID)이 자동으로 채워집니다.</p>
+            <syn_fileclient id="sfcCompanyImage" syn-datafield="CompanyImage" syn-options="{
+                repositoryID: 'TSTLS01'
+            }"></syn_fileclient>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnUploadCompanyImage" value="이미지 업로드" syn-events="['click']" />
+            <input type="button" id="btnDownloadCompanyImage" value="다운로드" syn-events="['click']" />
+            <input type="button" id="btnGetValueCompanyImage" value="현재 값 확인" syn-events="['click']" />
+            <input type="button" id="btnDeleteCompanyImage" value="삭제" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

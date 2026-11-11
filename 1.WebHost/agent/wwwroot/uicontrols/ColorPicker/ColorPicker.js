@@ -7,7 +7,7 @@
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2025.10.1',
+        version: 'v2026.7.23',
         colorControls: [],
         defaultSetting:
         {
@@ -125,6 +125,13 @@
 
             picker.self.appendChild(code);
 
+            // CP 는 '#' 접두가 있는 값만 색상으로 인식하므로, defaultColor 를 '#RRGGBB' 로 지정하고 change 를 발생시켜 입력창에도 반영한다.
+            if ($object.isString(setting.defaultColor) == true && setting.defaultColor.length > 0) {
+                var defaultHex = setting.defaultColor.replace('#', '');
+                picker.set('#' + defaultHex);
+                picker.fire('change', [defaultHex]);
+            }
+
             function update() {
                 if (this.value.length) {
                     picker.set(this.value);
@@ -150,10 +157,9 @@
 
         getValue(elID, meta) {
             var result = null;
-            var dateControl = $colorpicker.getControl(elID);
-
-            if (dateControl) {
-                result = dateControl.picker.field.value;
+            var el = syn.$l.get(elID);
+            if (el) {
+                result = el.value;
             }
 
             return result;
@@ -161,8 +167,9 @@
 
         setValue(elID, value, meta) {
             var dateControl = $colorpicker.getControl(elID);
-            if (dateControl) {
-                dateControl.picker.field.value = value;
+            if (dateControl && $object.isNullOrUndefined(value) == false) {
+                dateControl.picker.set(value);
+                dateControl.picker.fire('change', [String(value).replace('#', '')]);
             }
         },
 
@@ -173,7 +180,8 @@
         clear(elID, isControlLoad) {
             var dateControl = $colorpicker.getControl(elID);
             if (dateControl) {
-                dateControl.picker.clear();
+                // CP 라이브러리에는 clear 가 없으므로 입력창 값을 직접 비운다.
+                dateControl.picker.source.value = '';
             }
         },
 

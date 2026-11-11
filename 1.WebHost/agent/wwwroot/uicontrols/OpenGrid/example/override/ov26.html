@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-26 새 집계 함수 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-26 · 새 집계 함수(MEDIAN 등)</h2>
+    <p class="desc">grid.override.strategy("summaryOp", fn)으로 기본에 없는 MEDIAN 집계를 Footer에 추가합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv26_footer">Point MEDIAN Footer 표시</button>
+    </div>
+    <syn_opengrid id="grdOv26" class="demo-grid" syn-options="{
+        columns: [['MemberName', '이름', 120, false, 'text'], ['Point', '포인트', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov26.js"></script>
+</body>
+</html>

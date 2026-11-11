@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>TextBox - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>TextBox 전체 기능 확인</h3>
+		<p>
+			<code>editType</code> 전체 목록, 입력 마스크, 길이 제한, 숫자 범위, 자동완성(datalist), 검증(validators),
+			<code>getValue</code>/<code>setValue</code>/<code>clear</code> 와 이벤트를 한 화면에서 확인합니다.
+			값을 입력하고 포커스를 벗어나면(blur) 각 타입의 서식 변환과 형식 검증이 동작합니다.
+		</p>
+
+		<h4>1. editType 별 입력/검증</h4>
+		<table class="table table-sm" style="max-width: 900px;">
+			<thead><tr><th style="width: 160px;">editType</th><th>입력</th><th style="width: 360px;">입력 예 / 동작</th></tr></thead>
+			<tbody>
+				<tr><td>text</td><td><input id="txtText" type="text" syn-options="{editType: 'text', placeText: ['자유 입력']}"></td><td>별도 변환 없음</td></tr>
+				<tr><td>english</td><td><input id="txtEnglish" type="text" syn-options="{editType: 'english'}"></td><td>한글 입력 차단 (영문/숫자/_)</td></tr>
+				<tr><td>uppercase</td><td><input id="txtUppercase" type="text" syn-options="{editType: 'uppercase'}"></td><td>영문 대문자만 허용</td></tr>
+				<tr><td>lowercase</td><td><input id="txtLowercase" type="text" syn-options="{editType: 'lowercase'}"></td><td>영문 소문자만 허용</td></tr>
+				<tr><td>number</td><td><input id="txtNumber" type="text" class="text-end" syn-options="{editType: 'number', minCount: 0, maxCount: 100}"></td><td>숫자만, 0~100 범위로 보정 (콤마 없음)</td></tr>
+				<tr><td>numeric</td><td><input id="txtNumeric" type="text" class="text-end" syn-options="{editType: 'numeric', formatNumber: true}"></td><td>1234567 → 1,234,567 (통화 서식)</td></tr>
+				<tr><td>numeric (서식 없음)</td><td><input id="txtNumericPlain" type="text" class="text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 1, maxCount: 999}"></td><td>콤마 서식 없이 1~999 보정</td></tr>
+				<tr><td>spinner</td><td><input id="txtSpinner" type="text" syn-options="{editType: 'spinner', minCount: 0, maxCount: 50}" value="10"></td><td>증감 버튼, 0~50</td></tr>
+				<tr><td>year</td><td><input id="txtYear" type="text" syn-options="{editType: 'year'}"></td><td>2026</td></tr>
+				<tr><td>date</td><td><input id="txtDate" type="text" syn-options="{editType: 'date', maskPattern: '9999-99-99'}"></td><td>20261009 → 2026-10-09 / 잘못된 날짜는 비움</td></tr>
+				<tr><td>yearmonth</td><td><input id="txtYearMonth" type="text" syn-options="{editType: 'yearmonth'}"></td><td>2026-10</td></tr>
+				<tr><td>hour</td><td><input id="txtHour" type="text" syn-options="{editType: 'hour'}"></td><td>0~23, 1자리는 0 패딩</td></tr>
+				<tr><td>minute</td><td><input id="txtMinute" type="text" syn-options="{editType: 'minute'}"></td><td>0~59, 1자리는 0 패딩</td></tr>
+				<tr><td>time5</td><td><input id="txtTime5" type="text" syn-options="{editType: 'time5'}"></td><td>HH:mm 마스크</td></tr>
+				<tr><td>time8</td><td><input id="txtTime8" type="text" syn-options="{editType: 'time8'}"></td><td>HH:mm:ss 마스크</td></tr>
+				<tr><td>homephone</td><td><input id="txtHomePhone" type="text" syn-options="{editType: 'homephone'}"></td><td>0212345678 → 02-1234-5678</td></tr>
+				<tr><td>mobilephone</td><td><input id="txtMobilePhone" type="text" syn-options="{editType: 'mobilephone'}"></td><td>01012345678 → 010-1234-5678</td></tr>
+				<tr><td>phone</td><td><input id="txtPhone" type="text" syn-options="{editType: 'phone'}"></td><td>휴대/지역 전화 모두 허용</td></tr>
+				<tr><td>email</td><td><input id="txtEmail" type="text" syn-options="{editType: 'email'}"></td><td>형식 오류면 값을 비움</td></tr>
+				<tr><td>juminno</td><td><input id="txtJuminNo" type="text" syn-options="{editType: 'juminno'}"></td><td>999999-9999999 마스크 (실제 번호를 입력하지 마세요)</td></tr>
+				<tr><td>businessno</td><td><input id="txtBusinessNo" type="text" syn-options="{editType: 'businessno'}"></td><td>999-99-99999 마스크 + 체크섬 검증</td></tr>
+				<tr><td>corporateno</td><td><input id="txtCorporateNo" type="text" syn-options="{editType: 'corporateno', inValidateClear: false}"></td><td>오류 시 지우지 않고 빨간 글씨로 표시(inValidateClear: false)</td></tr>
+			</tbody>
+		</table>
+
+		<h4>2. 마스크 · 길이 제한 · 안내 문구</h4>
+		<div class="mb-2">
+			<label for="txtCustomMask">커스텀 마스크 (maskPattern: (99) SSSS-AAAA)</label><br>
+			<input id="txtCustomMask" type="text" syn-options="{editType: 'text', maskPattern: '(99) SSSS-AAAA'}">
+		</div>
+		<div class="mb-2">
+			<label for="txtMaxlength">maxlength 10자</label><br>
+			<input id="txtMaxlength" type="text" maxlength="10" syn-options="{editType: 'text'}">
+		</div>
+		<div class="mb-2">
+			<label for="txtMaxlengthB">maxlengthB 10 (한글 등 2byte 문자는 2로 계산)</label><br>
+			<input id="txtMaxlengthB" type="text" maxlengthB="10" syn-options="{editType: 'text'}">
+		</div>
+		<div class="mb-2">
+			<label for="txtPlaceText">placeText (안내 문구 순환 표시)</label><br>
+			<input id="txtPlaceText" type="text" syn-options="{editType: 'text', placeText: ['고객명을 입력하세요', '예: 홍길동', '최대 20자']}">
+		</div>
+
+		<h4>3. 자동완성 (datalist)</h4>
+		<div class="mb-2">
+			<label for="txtCity">정적 목록 (datalistItems: 문자열 / {value, label} 혼용)</label><br>
+			<input id="txtCity" type="text" syn-options="{editType: 'text', datalistItems: ['서울특별시', {value: 'BUS', label: '부산광역시'}, '대구광역시', '인천광역시']}">
+		</div>
+		<div class="mb-2">
+			<label for="txtRemoteCity">원격(로컬 JSON) 목록 (datalistUrl)</label><br>
+			<input id="txtRemoteCity" type="text" syn-options="{editType: 'text', datalistUrl: '/uicontrols/TextBox/example/code/cities.json', datalistValueField: 'value', datalistLabelField: 'label'}">
+		</div>
+		<div class="mb-2">
+			<input type="button" id="btnSetItems" value="setDatalistItems" syn-events="['click']">
+			<input type="button" id="btnAddItem" value="addDatalistItem" syn-events="['click']">
+			<input type="button" id="btnRemoveItem" value="removeDatalistItem('대구광역시')" syn-events="['click']">
+			<input type="button" id="btnFilterItems" value="filterDatalistItems('광역시')" syn-events="['click']">
+			<input type="button" id="btnGetItems" value="getDatalistItems" syn-events="['click']">
+			<input type="button" id="btnLoadItems" value="loadDatalistItems(url)" syn-events="['click']">
+			<input type="button" id="btnClearItems" value="clearDatalistItems" syn-events="['click']">
+		</div>
+
+		<h4>4. 이벤트 · 값 조회/설정 · 검증</h4>
+		<div class="mb-2">
+			<label for="txtComment">이벤트 확인 (focus / input / change / blur)</label><br>
+			<input id="txtComment" type="text" syn-options="{editType: 'text'}" syn-events="['focus', 'input', 'change', 'blur']">
+		</div>
+		<div class="mb-2">
+			<label for="txtAmount">금액 (numeric) - getValue 는 콤마를 제거한 숫자 문자열</label><br>
+			<input id="txtAmount" type="text" class="text-end" syn-options="{editType: 'numeric', validators: ['require', 'numeric'], controlText: '금액'}" syn-events="['change']">
+		</div>
+		<div class="mb-2">
+			<input type="button" id="btnGetValue" value="getValue" syn-events="['click']">
+			<input type="button" id="btnSetValue" value="setValue(1234567)" syn-events="['click']">
+			<input type="button" id="btnSetNull" value="setValue(null)" syn-events="['click']">
+			<input type="button" id="btnClear" value="clear" syn-events="['click']">
+			<input type="button" id="btnValidate" value="필수값/형식 검증" syn-events="['click']">
+		</div>
+	</form>
+
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

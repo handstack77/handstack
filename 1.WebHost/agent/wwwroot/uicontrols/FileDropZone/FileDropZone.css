@@ -1,0 +1,37 @@
+syn_filedropzone { display: block; }
+.syn-filedropzone.dropzone { box-sizing: border-box; min-height: 160px; padding: 12px; background: #fff; border: 2px dashed #cbd5e1; border-radius: 8px; }
+.syn-filedropzone.dropzone.dz-drag-hover { border-color: #2563eb; background: #eff6ff; }
+.syn-filedropzone .dz-message { margin: 2em 0; color: #64748b; }
+.syn-filedropzone .dz-message .dz-button { color: inherit; font-size: 14px; }
+.syn-filedropzone .dz-message .dz-button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.syn-filedropzone.dz-started .dz-message { margin: 0 0 8px; }
+.syn-filedropzone .fdz-status { padding: 12px 0; color: #64748b; font-size: 14px; }
+.syn-filedropzone .fdz-status.fdz-status-error { color: #b91c1c; }
+
+/* 파일 카드: 썸네일 아래에 파일명/크기를 항상 표시한다. */
+.syn-filedropzone .dz-preview { width: 120px; margin: 8px; vertical-align: top; }
+.syn-filedropzone .dz-preview .dz-image { background: #f1f5f9; }
+.syn-filedropzone .dz-preview .dz-image img { object-fit: cover; }
+.syn-filedropzone .dz-preview:hover .dz-image img { filter: none; transform: none; }
+.syn-filedropzone .dz-preview .dz-details, .syn-filedropzone .dz-preview.dz-image-preview .dz-details { position: static; z-index: auto; display: flex; flex-direction: column-reverse; min-width: 0; max-width: 120px; padding: 6px 0 0; opacity: 1; font-size: 12px; line-height: 1.3; color: #334155; }
+.syn-filedropzone .dz-preview .dz-details .dz-size { margin: 2px 0 0; font-size: 11px; color: #64748b; }
+.syn-filedropzone .dz-preview .dz-details .dz-filename { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.syn-filedropzone .dz-preview .dz-details .dz-filename span, .syn-filedropzone .dz-preview .dz-details .dz-size span { padding: 0; background: none; border: 0; }
+.syn-filedropzone .dz-preview .dz-details .dz-filename:hover span { background: none; border: 0; }
+.syn-filedropzone .dz-preview .fdz-ext { position: absolute; top: 6px; left: 6px; z-index: 15; padding: 1px 6px; border-radius: 4px; background: #e2e8f0; color: #475569; font-size: 11px; font-weight: 700; pointer-events: none; }
+.syn-filedropzone .dz-preview .fdz-ext:empty, .syn-filedropzone .dz-preview.dz-image-preview .fdz-ext { display: none; }
+.syn-filedropzone .dz-preview .fdz-actions { position: relative; z-index: 30; display: flex; justify-content: center; gap: 4px; margin-top: 6px; }
+.syn-filedropzone .dz-preview .fdz-actions button { padding: 2px 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; color: #334155; font-size: 12px; cursor: pointer; }
+.syn-filedropzone .dz-preview .fdz-actions button:hover { background: #f1f5f9; }
+.syn-filedropzone .dz-preview .fdz-actions button:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
+.syn-filedropzone .dz-preview .fdz-actions .fdz-remove { color: #b91c1c; }
+.syn-filedropzone .dz-preview:not(.fdz-has-item) .fdz-download, .syn-filedropzone .dz-preview.fdz-no-download .fdz-download { display: none; }
+
+/* 오류 문구는 마우스를 올리지 않아도 항상 보이게 한다. */
+.syn-filedropzone .dz-preview.dz-error .dz-error-message { position: static; width: auto; margin-top: 6px; padding: .3em .6em; border-radius: 4px; font-size: 12px; line-height: 1.3; opacity: 1; pointer-events: auto; }
+.syn-filedropzone .dz-preview.dz-error .dz-error-message:after { display: none; }
+
+.syn-filedropzone.fdz-readonly.dropzone, .syn-filedropzone.fdz-disabled.dropzone { background: #f8fafc; border-style: solid; cursor: default; }
+.syn-filedropzone.fdz-readonly .dz-message, .syn-filedropzone.fdz-disabled .dz-message { display: none; }
+.syn-filedropzone.fdz-readonly .fdz-remove, .syn-filedropzone.fdz-disabled .fdz-remove, .syn-filedropzone.fdz-disabled .fdz-download { display: none; }
+.syn-filedropzone.fdz-disabled { opacity: .6; }

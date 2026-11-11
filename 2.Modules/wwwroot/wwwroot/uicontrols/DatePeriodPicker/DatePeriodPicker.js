@@ -47,7 +47,7 @@
             startClassName: 'form-control',
             endClassName: 'form-control',
             // true이면 시작·종료 입력, '~', 달력 버튼을 테두리 하나(form-control 모양) 안에 넣는다.
-            singleBox: false,
+            singleBox: true,
             // 기간 선택 팝업 가로 정렬: 'auto'(오른쪽 공간이 모자라면 컨트롤 오른쪽 끝에 맞춰 왼쪽으로 연다), 'left', 'right'
             popupAlign: 'auto',
             dataType: 'string',

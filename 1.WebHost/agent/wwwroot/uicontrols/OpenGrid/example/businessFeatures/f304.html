@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F3-04 부동소수점 정밀도 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>F3-04 · 0.1+0.2와 부동소수점 정밀도의 한계</h2>
+    <p class="desc">"=0.1+0.2"는 IEEE754 부동소수점 특성상 0.30000000000000004가 될 수 있습니다. formula.divisionPrecision 옵션으로 나눗셈 결과 자릿수를 제어할 수 있습니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdF304_apply">0.1+0.2 수식 적용</button>
+    </div>
+    <syn_opengrid id="grdF304" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [['MemberName', '이름', 120, false, 'text'], ['Point', '계산 결과', 200, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="f304.js"></script>
+</body>
+</html>

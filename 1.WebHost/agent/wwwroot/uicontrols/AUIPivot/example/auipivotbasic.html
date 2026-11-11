@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>WebGrid - $auipivot (레거시) 기본 사용법</title>
+</head>
+<body>
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<h3>$auipivot (AUIGrid 기반 피벗 테이블, 레거시) - 행/열/값 필드 배치</h3>
+		<p>
+			<code>syn.loader.js</code>에는 <code>auipivot</code> 자동주입 케이스가 없으므로, AUIGrid 벤더 스크립트를
+			<code>pageLoadFiles</code> 훅으로 직접 등록해야 합니다.
+		</p>
+
+		<syn_auipivot id="pvtSales" syn-options="{
+			height: 360,
+			layout: {
+				rowFields: ['Region', 'Model'],
+				columnFields: ['DateQuarter'],
+				valueFields: [{ dataField: 'Total', operation: 'SUM', formatString: '#,##0' }],
+				fieldAlias: { Region: '판매 지역', Model: '상품명', Total: '매출액', DateQuarter: '분기' }
+			}
+		}" syn-events="['cellClick', 'sorting']" style="width: 700px;"></syn_auipivot>
+
+		<hr>
+		<input type="button" id="btnLoadRows" value="샘플 데이터 채우기" syn-events="['click']">
+		<input type="button" id="btnExpandAll" value="expandAll" syn-events="['click']">
+		<input type="button" id="btnClear" value="clear" syn-events="['click']">
+	</form>
+
+	<script>
+		function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+			window.afterLoadFiles = [];
+			afterLoadFiles.push('/lib/auigrid/dist/AUIGridLicense.js');
+			afterLoadFiles.push('/lib/auigrid/dist/AUIGrid.js');
+			afterLoadFiles.push('/uicontrols/AUIPivot/AUIPivot.css');
+			afterLoadFiles.push('/uicontrols/AUIPivot/AUIPivot.js');
+		}
+	</script>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

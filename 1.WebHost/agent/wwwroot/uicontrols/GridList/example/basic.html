@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GridList - 기본 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>체크박스 없이 목록만 표시하는 가장 단순한 GridList 입니다. 컬럼 헤더를 클릭해 정렬할 수 있고, 두 번째 헤더 행의 입력창으로 컬럼별 검색을 할 수 있습니다.</p>
+            <syn_list id="lstBasic" syn-options="{
+                pageLength: 5,
+                columns: [
+                    { title: 'ID', data: 'id', width: '40px' },
+                    { title: '이름', data: 'name', width: '120px' },
+                    { title: '직급', data: 'position', width: '160px' },
+                    { title: '사무실', data: 'office', width: '120px' },
+                    { title: '입사일', data: 'startDate', width: '100px' }
+                ]
+            }" style="width: 100%; border: 1px solid #ccc;"></syn_list>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

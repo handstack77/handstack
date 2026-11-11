@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TextArea - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>TextArea 전체 기능 확인</h3>
+        <p>
+            순수 <code>textarea</code>(<code>toSynControl: false</code>) 와 CodeMirror 편집기(<code>toSynControl: true</code>) 모드를 비교하고,
+            <code>maxlength</code>/<code>maxlengthB</code>, <code>width</code>/<code>height</code>, <code>resize</code>, <code>lineNumbers</code>/<code>indentUnit</code>,
+            <code>getValue</code>/<code>setValue</code>/<code>clear</code>/<code>countLines</code>/<code>getControl</code> 과 <code>change</code>/<code>blur</code> 이벤트를 확인합니다.
+        </p>
+
+        <h4>1. 순수 textarea (toSynControl: false)</h4>
+        <div class="mb-2">
+            <label for="txtPlain">maxlength 50자 + 크기 조절 허용(resize: true)</label><br>
+            <textarea id="txtPlain" syn-options="{toSynControl: false, resize: true}" maxlength="50" placeholder="최대 50자까지 입력할 수 있습니다." style="width: 500px; height: 80px;"></textarea>
+        </div>
+        <div class="mb-2">
+            <label for="txtBytes">maxlengthB 30 (한글 등 비영문 문자는 3byte 로 계산) - 초과 시 안내</label><br>
+            <textarea id="txtBytes" syn-options="{toSynControl: false}" maxlengthB="30" placeholder="한글 10자 / 영문 30자 정도까지 입력됩니다." style="width: 500px; height: 80px;"></textarea>
+        </div>
+
+        <h4>2. CodeMirror 편집기 (toSynControl: true)</h4>
+        <div class="mb-2">
+            <label for="txtCode">줄 번호 표시(lineNumbers) + 들여쓰기 8칸(indentUnit) + 높이 140px</label><br>
+            <textarea id="txtCode" syn-options="{toSynControl: true, lineNumbers: true, indentUnit: 8, width: '500px', height: '140px'}" syn-events="['change', 'blur']">첫 번째 줄
+두 번째 줄
+세 번째 줄</textarea>
+        </div>
+        <div class="mb-2">
+            <label for="txtNoLines">줄 번호 숨김 (lineNumbers: false)</label><br>
+            <textarea id="txtNoLines" syn-options="{toSynControl: true, lineNumbers: false, width: '500px', height: '90px'}"></textarea>
+        </div>
+
+        <h4>3. 메서드</h4>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (txtCode)" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue (txtCode)" syn-events="['click']">
+            <input type="button" id="btnCountLines" value="countLines (txtCode)" syn-events="['click']">
+            <input type="button" id="btnGetControl" value="getControl (txtCode)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear (모두)" syn-events="['click']">
+            <input type="button" id="btnPlainValue" value="순수 textarea 값 조회" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F3-05 채우기와 절대/상대 참조 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>F3-05 · 채우기와 절대/상대 참조</h2>
+    <p class="desc">필드명 참조(=Price*Qty)는 항상 "그 행의" Price/Qty를 가리키므로(상대 참조와 동일한 효과), 아래로 채워도 각 행에 맞게 자동 적용됩니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdF305_fillAll">전체 행에 수식 채우기</button>
+    </div>
+    <syn_opengrid id="grdF305" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [['Price', '단가', 100, false, 'number'], ['Qty', '수량', 90, false, 'number'], ['Total', '합계', 110, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="f305.js"></script>
+</body>
+</html>

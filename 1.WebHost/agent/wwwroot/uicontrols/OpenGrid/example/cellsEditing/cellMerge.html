@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>셀 병합 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 셀 & 편집</div>
+    <h2>셀 병합</h2>
+    <p class="desc">같은 부서 값을 세로로 자동 병합합니다(autoMerge).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdCellMerge_merge">Department 자동 병합</button>
+        <button type="button" id="grdCellMerge_clear" class="secondary">병합 해제</button>
+    </div>
+    <syn_opengrid id="grdCellMerge" class="demo-grid" syn-options="{
+        columns: [
+            ['Department', '부서', 110, false, 'text'],
+            ['MemberName', '이름', 120, false, 'text'],
+            ['Point', '포인트', 100, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="cellMerge.js"></script>
+</body>
+</html>

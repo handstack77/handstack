@@ -67,7 +67,7 @@
                 syn.$l.eventLog('ContextMenu_controlLoad', error.toString(), 'Debug');
             }
 
-            for (var i = 0; i < hookEvents.length; i++) {
+            for (var i = 0; i < hookEvents?.length; i++) {
                 var hookEvent = hookEvents[i];
                 if ($contextmenu.eventHooks.indexOf(hookEvent) > -1) {
                     if ($object.isNullOrUndefined(setting[hookEvent]) == true) {

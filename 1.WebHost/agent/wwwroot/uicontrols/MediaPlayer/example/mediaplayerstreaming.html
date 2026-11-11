@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        MediaPlayer 스트리밍 예제
+    </title>
+    <link rel="stylesheet" href="mediaplayerdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1" syn-datafield="MainForm">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <div class="demo-card">
+            <h3>
+                YouTube, HLS, MPEG-DASH
+            </h3>
+            <p>
+                로컬 Video.js VHS와
+                <code>
+                    videojs-youtube
+                </code>
+                tech를 같은 목록에서 사용합니다.
+            </p>
+            <syn_mediaplayer id="mpStreaming" class="demo-player" syn-datafield="Streams"
+                             syn-events="['mediaChange','waiting','playing','error']"
+                             syn-options="{ playlist:{visible:'always',position:'bottom',autoAdvance:false}, youtube:{ytControls:0,rel:0} }">
+            </syn_mediaplayer>
+            <pre id="preResult">
+재생할 스트림을 목록에서 선택하세요.
+				</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

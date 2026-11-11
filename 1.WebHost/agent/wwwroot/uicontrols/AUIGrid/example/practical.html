@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>AUIGrid - 상품 관리 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">상품 관리 / 상품 등록</div>
+                                <h2 class="page-title">상품 관리</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnSearch" class="btn" syn-events="['click']"><i class="f:20 ti ti-search mr-2"></i> 조회</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid">
+                        <div class="card mb-3">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">상품 분류</label>
+                                            <select id="ddlCategory" syn-options="{placeholder: '전체', toSynControl: true, width: 160}"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">판매 여부</label>
+                                            <select id="ddlUseYN" class="form-select">
+                                                <option value="">전체</option>
+                                                <option value="Y">판매 중</option>
+                                                <option value="N">판매 중지</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">상품명</label>
+                                            <input id="txtProductName" type="text" class="form-control" maxlengthB="50" syn-options="{editType: 'text'}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-9">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">상품 목록</h3>
+                                        <div class="card-actions">
+                                            <span id="spnCount" class="mr-2">0건</span>
+                                            <div class="btn-group mx-2">
+                                                <button type="button" id="btnAddRow" class="btn btn-icon" title="행 추가" syn-events="['click']"><i class="f:20 ti ti-plus"></i></button>
+                                                <button type="button" id="btnRemoveRow" class="btn btn-icon" title="행 삭제" syn-events="['click']"><i class="f:20 ti ti-minus"></i></button>
+                                                <button type="button" id="btnExcel" class="btn" syn-events="['click']"><i class="f:20 ti ti-file-spreadsheet mr-2"></i> 엑셀</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_auigrid id="grdProduct" syn-datafield="ProductList" syn-options="{
+                                                height: 420,
+                                                showInlineFilter: true,
+                                                showFooter: true,
+                                                controlText: '상품 목록',
+                                                columns: [
+                                                    ['ProductNo', '상품코드', 110, false, 'english', true, 'left', null, {maxlength: 20, style: 'bg:#e7e7e7!'}],
+                                                    ['ProductName', '상품명', 300, false, 'text', false, 'left', null, {validators: ['require'], maxlength: 50}],
+                                                    ['CategoryID', '분류', 140, false, 'dropdown', false, 'center', null, {dataSourceID: 'CategoryID', local: true, required: true, validators: ['require']}],
+                                                    ['Price', '판매가', 130, false, 'numeric', false, 'right', null, {validators: ['require']}],
+                                                    ['Stock', '재고', 110, false, 'numeric', false, 'right', null, {}],
+                                                    ['UseYN', '판매', 90, false, 'checkbox', false, 'center', null, {checkValue: 'Y', unCheckValue: 'N'}],
+                                                    ['ReleaseDate', '출시일', 130, false, 'date', false, 'center', null, {}]
+                                                ]
+                                            }" syn-events="['afterSelectionEnd', 'afterChange']"></syn_auigrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">선택 상품</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2"><span class="text-muted">상품코드</span><div id="divDetailNo" class="fw-bold">-</div></div>
+                                        <div class="mb-2"><span class="text-muted">상품명</span><div id="divDetailName" class="fw-bold">-</div></div>
+                                        <div class="mb-2"><span class="text-muted">재고 가치(판매가 x 재고)</span><div id="divDetailValue" class="fw-bold">-</div></div>
+                                        <div class="mb-2"><span class="text-muted">상태</span><div id="divDetailFlag" class="fw-bold">-</div></div>
+                                    </div>
+                                </div>
+                                <div class="card overflow-auto">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">저장 대상</h3>
+                                        <div class="card-actions"><span id="spnChanged" class="mr-2">0건</span></div>
+                                    </div>
+                                    <div class="card-body">
+                                        <pre id="preResult" class="mb-0" style="max-height: 200px; overflow: auto;">변경된 행이 없습니다.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>TreeView - 부서 관리 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">조직 관리 / 부서</div>
+                                <h2 class="page-title">부서 관리</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnAddChild" class="btn" syn-events="['click']"><i class="f:20 ti ti-plus mr-2"></i> 하위 부서 추가</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 저장</button>
+                                    <button type="button" id="btnRemove" class="btn btn-danger" syn-events="['click']"><i class="f:20 ti ti-trash mr-2"></i> 삭제</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">부서 트리</h3>
+                                        <div class="card-actions">
+                                            <div class="btn-group mx-2">
+                                                <button type="button" id="btnExpand" class="btn btn-sm btn-icon" title="모두 펼치기" syn-events="['click']"><i class="ti ti-arrows-diagonal"></i></button>
+                                                <button type="button" id="btnCollapse" class="btn btn-sm btn-icon" title="모두 접기" syn-events="['click']"><i class="ti ti-arrows-diagonal-minimize-2"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <input id="txtFilter" type="text" class="form-control form-control-sm mb-2" placeholder="부서명 검색" syn-options="{editType: 'text'}" syn-events="['input']">
+                                        <syn_tree id="tvlDept" syn-options="{
+                                            itemID: 'key',
+                                            height: '380px',
+                                            extensions: ['filter'],
+                                            filter: { counter: false, mode: 'hide' },
+                                            reduceMap: { key: 'DeptID', title: 'DeptName', parentID: 'ParentID', folder: 'FolderYN', icon: false }
+                                        }" syn-events="['activate']"></syn_tree>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">부서 정보</h3>
+                                        <div class="card-actions"><span id="spnMode" class="mr-2">선택 없음</span></div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-2">
+                                            <label class="col-2 col-form-label">부서 코드</label>
+                                            <div class="col">
+                                                <input id="txtDeptID" type="text" class="form-control" readonly syn-options="{editType: 'text'}">
+                                            </div>
+                                            <label class="col-2 col-form-label">상위 부서</label>
+                                            <div class="col">
+                                                <input id="txtParentName" type="text" class="form-control" readonly syn-options="{editType: 'text'}">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <label class="col-2 col-form-label required">부서명</label>
+                                            <div class="col">
+                                                <input id="txtDeptName" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text', controlText: '부서명'}">
+                                            </div>
+                                            <label class="col-2 col-form-label">인원</label>
+                                            <div class="col">
+                                                <input id="txtMemberCount" type="text" class="form-control text-end" readonly syn-options="{editType: 'text'}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card overflow-auto">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">처리 로그</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <pre id="preLog" class="mb-0" style="max-height: 160px; overflow: auto;">부서를 선택하면 상세 정보가 표시됩니다.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

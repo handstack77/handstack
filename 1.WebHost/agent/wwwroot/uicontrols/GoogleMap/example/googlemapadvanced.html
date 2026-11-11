@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>
+        GoogleMap 고급 예제
+    </title>
+    <link rel="stylesheet" href="googlemapdemo.css" />
+</head>
+<body style="visibility: hidden;">
+    <form id="form1">
+        <div class="demo-card">
+            <div class="demo-nav">
+                <a href="index.html">
+                    ← 예제 목록
+                </a>
+            </div>
+            <h3>
+                GeoJSON, 도형, 레이어, Geocoder, Street View
+            </h3>
+            <syn_googlemap id="mapAdvanced" class="demo-map" syn-events="['initialized','error']" syn-options="{mapOptions:{center:{lat:37.5665,lng:126.978},zoom:12}}">
+            </syn_googlemap>
+            <div class="demo-actions">
+                <input type="button" id="btnGeoJson" value="GeoJSON 추가" syn-events="['click']" />
+                <input type="button" id="btnCircle" value="Circle 추가" syn-events="['click']" />
+                <input type="button" id="btnTraffic" value="교통 레이어 전환" syn-events="['click']" />
+                <input type="button" id="btnGeocode" value="서울시청 검색" syn-events="['click']" />
+                <input type="button" id="btnPano" value="Street View" syn-events="['click']" />
+            </div>
+            <div id="pano" class="pano">
+            </div>
+            <pre id="preResult">버튼으로 Google Maps 기능을 확인하세요.</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

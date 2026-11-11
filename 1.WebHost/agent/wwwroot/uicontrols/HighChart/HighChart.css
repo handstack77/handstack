@@ -1,0 +1,11 @@
+.syn-chart {
+  box-sizing: border-box;
+  min-height: 1px;
+  position: relative;
+}
+
+.syn-chart .highcharts-loading {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}

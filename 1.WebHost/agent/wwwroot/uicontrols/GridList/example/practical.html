@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>GridList - 주문 접수 처리 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">주문 관리 / 접수 처리</div>
+                                <h2 class="page-title">주문 접수 처리</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnSearch" class="btn" syn-events="['click']"><i class="f:20 ti ti-search mr-2"></i> 조회</button>
+                                    <button type="button" id="btnApprove" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-checks mr-2"></i> 선택 건 접수 처리</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid">
+                        <div class="card mb-3">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">처리 상태</label>
+                                            <select id="ddlStatus" class="form-select">
+                                                <option value="">전체</option>
+                                                <option value="WAIT">접수 대기</option>
+                                                <option value="DONE">접수 완료</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">고객명</label>
+                                            <input id="txtCustomerName" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text'}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">주문 목록</h3>
+                                        <div class="card-actions"><span id="spnCount" class="mr-2">0건</span></div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <syn_list id="lstOrders" syn-options="{
+                                            checkbox: true,
+                                            searching: false,
+                                            pageLength: 8,
+                                            columns: [
+                                                { title: '', data: 'OrderNo', width: '30px' },
+                                                { title: '고객명', data: 'CustomerName', width: '110px' },
+                                                { title: '상품', data: 'ProductName', width: '200px' },
+                                                { title: '금액', data: 'Amount', width: '110px', className: 'text-end' },
+                                                { title: '상태', data: 'StatusName', width: '90px' }
+                                            ]
+                                        }" syn-events="['select', 'dblclick']" style="width: 100%;"></syn_list>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">선택 주문 상세</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2"><span class="text-muted">주문 번호</span><div id="divNo" class="fw-bold">-</div></div>
+                                        <div class="mb-2"><span class="text-muted">고객명</span><div id="divCustomer" class="fw-bold">-</div></div>
+                                        <div class="mb-2"><span class="text-muted">상품 / 금액</span><div id="divProduct" class="fw-bold">-</div></div>
+                                        <div class="mb-2"><span class="text-muted">상태</span><div id="divStatus" class="fw-bold">-</div></div>
+                                        <div class="text-muted">행을 더블클릭하면 상세 정보를 확인할 수 있습니다.</div>
+                                    </div>
+                                </div>
+                                <div class="card overflow-auto">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">처리 결과</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <pre id="preResult" class="mb-0">접수 처리 결과가 여기에 표시됩니다.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        ECharts Interaction
+    </title>
+    <link rel="stylesheet" href="echartsdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h2>
+            Component·Action·Event
+        </h2>
+        <p>
+            timeline, dataZoom, brush, visualMap, toolbox와 native query/ZRender 이벤트를 검증합니다.
+        </p>
+        <section class="demo-card">
+            <syn_echarts id="chtInteraction" class="demo-chart tall" syn-events="['click','datazoom','brushselected','timelinechanged']" syn-options="{ eventQueries:{ click:{ seriesIndex:0 } }, zrEvents:['contextmenu'], option:{} }">
+            </syn_echarts>
+            <div class="demo-actions">
+                <input id="btnHighlight" type="button" value="dispatchAction highlight" syn-events="['click']">
+                <input id="btnZoom" type="button" value="dataZoom" syn-events="['click']">
+            </div>
+            <pre id="preResult">
+
+차트와 toolbox를 조작하세요.
+				
+				</pre>
+        </section>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

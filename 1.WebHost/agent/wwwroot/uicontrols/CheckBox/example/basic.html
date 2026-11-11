@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>CheckBox - 기본 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>CheckBox 기본 예제</h3>
+        <p>
+            가장 단순한 형태의 체크박스입니다. 네이티브 <code>&lt;input type="checkbox"&gt;</code> 엘리먼트에
+            <code>syn-datafield</code>만 지정하면 syn.uicontrols.$checkbox가 자동으로 인식합니다.
+        </p>
+
+        <div>
+            <input id="chkAgree" type="checkbox" syn-datafield="AgreeYN">
+            <label for="chkAgree">이용약관에 동의합니다</label>
+        </div>
+
+        <hr />
+
+        <div>
+            <input id="chkChecked" type="checkbox" syn-datafield="DefaultCheckedYN" checked="checked">
+            <label for="chkChecked">처음부터 체크된 상태(checked 속성)</label>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

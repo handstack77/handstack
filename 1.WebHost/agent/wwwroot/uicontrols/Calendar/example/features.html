@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Calendar - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>Calendar 전체 기능 확인</h3>
+        <p>
+            뷰 전환(<code>initialView</code>/<code>changeView</code>), <code>headerToolbar</code>, <code>selectable</code>/<code>editable</code>, <code>displayEventTime</code>/<code>dayMaxEvents</code>,
+            <code>eventMapping</code>, <code>setValue</code>/<code>addEvent</code>/<code>updateEvent</code>/<code>removeEvent</code>/<code>getterValue</code>(변경분 Flag C/U/D)/<code>getEvents</code>/<code>findEvents</code>/<code>clear</code>/<code>gotoDate</code>/<code>refetchEvents</code>,
+            이벤트(<code>eventClick</code>/<code>dateClick</code>/<code>select</code>/<code>datesSet</code>/<code>eventDrop</code>/<code>eventResize</code>/<code>eventDidMount</code>)를 확인합니다.
+            일정을 드래그해서 옮기거나, 빈 날짜를 클릭/드래그해 보세요.
+        </p>
+
+        <syn_calendar id="calFeatures" syn-options="{
+            height: 480,
+            initialView: 'dayGridMonth',
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' },
+            selectable: true,
+            editable: true,
+            displayEventTime: true,
+            dayMaxEvents: 2,
+            eventMapping: {
+                id: 'TaskID',
+                title: 'TaskName',
+                start: 'StartDate',
+                end: 'EndDate',
+                backgroundColor: 'BackgroundColor',
+                allDay: 'AllDay'
+            }
+        }" syn-events="['eventClick', 'dateClick', 'select', 'datesSet', 'eventDrop', 'eventResize', 'eventDidMount']"></syn_calendar>
+
+        <div class="mt-3 mb-2">
+            <div class="mb-1"><strong>데이터</strong></div>
+            <input type="button" id="btnSetValue" value="setValue (샘플 일정 채우기)" syn-events="['click']">
+            <input type="button" id="btnAddEvent" value="addEvent" syn-events="['click']">
+            <input type="button" id="btnUpdateEvent" value="updateEvent (첫 일정 제목/색상)" syn-events="['click']">
+            <input type="button" id="btnRemoveEvent" value="removeEvent (마지막 일정)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear (전체 삭제)" syn-events="['click']">
+        </div>
+        <div class="mb-2">
+            <div class="mb-1"><strong>조회</strong></div>
+            <input type="button" id="btnGetterValue" value="getterValue (변경분)" syn-events="['click']">
+            <input type="button" id="btnGetEvents" value="getEvents (전체)" syn-events="['click']">
+            <input type="button" id="btnFindEvents" value="findEvents (제목에 '회의')" syn-events="['click']">
+            <input type="button" id="btnGetValue" value="getValue (항상 null)" syn-events="['click']">
+        </div>
+        <div class="mb-2">
+            <div class="mb-1"><strong>화면 제어</strong></div>
+            <input type="button" id="btnGotoDate" value="gotoDate (다음 달)" syn-events="['click']">
+            <input type="button" id="btnWeekView" value="changeView (timeGridWeek)" syn-events="['click']">
+            <input type="button" id="btnMonthView" value="changeView (dayGridMonth)" syn-events="['click']">
+            <input type="button" id="btnListView" value="changeView (listWeek)" syn-events="['click']">
+            <input type="button" id="btnRefetch" value="refetchEvents" syn-events="['click']">
+            <input type="button" id="btnGetCalendar" value="getCalendar (FullCalendar 인스턴스)" syn-events="['click']">
+        </div>
+        <pre id="preLog" class="mt-2"></pre>
+    </form>
+
+    <script>
+        function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+            window.afterLoadFiles = [];
+            // syn.loader.js 에는 'calendar' 자동 매핑 항목이 없으므로 직접 등록합니다.
+            afterLoadFiles.push('/lib/fullcalendar/index.global.min.js');
+            afterLoadFiles.push('/lib/fullcalendar/core/locales/ko.global.min.js');
+            afterLoadFiles.push('/uicontrols/Calendar/Calendar.css');
+            afterLoadFiles.push('/uicontrols/Calendar/Calendar.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

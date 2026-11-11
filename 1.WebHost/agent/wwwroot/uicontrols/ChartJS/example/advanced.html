@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>
+        ChartJS - Advanced 샘플 갤러리
+    </title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            margin: 16px;
+            color: #222;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 4px;
+        }
+
+        .lead {
+            color: #666;
+            margin: 0 0 16px;
+            font-size: 13px;
+        }
+
+        .chart-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 20px;
+        }
+
+        .chart-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+            .chart-card h3 {
+                margin: 0 0 4px;
+                font-size: 14px;
+            }
+
+            .chart-card p {
+                margin: 0 0 10px;
+                font-size: 12px;
+                color: #666;
+            }
+
+        button {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h1>
+            Advanced
+        </h1>
+        <p class="lead">
+            chartjs.org 공식 샘플(docs/samples/advanced/*) 7종을 &lt;syn_chartjs&gt;로 재현합니다.
+            <code>
+                register
+            </code>
+            /
+            <code>
+                getChartInstance
+            </code>
+            처럼 Chart.js 저수준 API를 직접 다루는 예제입니다.
+        </p>
+        <div class="chart-gallery">
+            <div class="chart-card">
+                <h3>
+                    Data Decimation
+                </h3>
+                <p>
+                    2,000개 점을
+                    <code>
+                        plugins.decimation
+                    </code>
+                    (lttb 알고리즘)으로 성능 좋게 그립니다.
+                </p>
+                <syn_chartjs id="chtDecimation" style="width:100%;height:260px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Derived Axis Type
+                </h3>
+                <p>
+                    <code>
+                        Chart.LinearScale
+                    </code>
+                    를 상속해 값 뒤에 %를 붙이는 커스텀 축을 등록합니다.
+                </p>
+                <syn_chartjs id="chtDerivedAxis" style="width:100%;height:260px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Derived Chart Type
+                </h3>
+                <p>
+                    <code>
+                        Chart.BarController
+                    </code>
+                    를 상속해 항상 둥근 모서리인 커스텀 차트 타입(
+                    <code>
+                        roundedBar
+                    </code>
+                    )을 등록합니다.
+                </p>
+                <syn_chartjs id="chtDerivedChart" style="width:100%;height:260px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Linear Gradient
+                </h3>
+                <p>
+                    scriptable
+                    <code>
+                        backgroundColor
+                    </code>
+                    에서
+                    <code>
+                        createLinearGradient
+                    </code>
+                    로 그라디언트를 계산합니다.
+                </p>
+                <syn_chartjs id="chtLinearGradient" style="width:100%;height:260px">
+                </syn_chartjs>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Programmatic Events
+                </h3>
+                <p>
+                    버튼으로
+                    <code>
+                        setActiveElements
+                    </code>
+                    를 호출해 사용자 조작 없이 포인트를 강조합니다.
+                </p>
+                <syn_chartjs id="chtProgrammatic" style="width:100%;height:260px">
+                </syn_chartjs>
+                <button type="button" id="btnHighlightNext" syn-events="['click']">
+                    다음 포인트 강조
+                </button>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Progress Bar
+                </h3>
+                <p>
+                    도넛 차트를 진행률 표시줄처럼 구성하고 중앙에 퍼센트를 표시합니다.
+                </p>
+                <syn_chartjs id="chtProgressBar" style="width:100%;height:260px">
+                </syn_chartjs>
+                <button type="button" id="btnProgressAdvance" syn-events="['click']">
+                    진행률 +10%
+                </button>
+            </div>
+            <div class="chart-card">
+                <h3>
+                    Radial Gradient
+                </h3>
+                <p>
+                    polarArea 차트에서
+                    <code>
+                        createRadialGradient
+                    </code>
+                    로 조각별 방사형 그라디언트를 계산합니다.
+                </p>
+                <syn_chartjs id="chtRadialGradient" style="width:100%;height:260px">
+                </syn_chartjs>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

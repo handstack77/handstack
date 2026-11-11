@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>규칙 스택 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 조건부서식</div>
+    <h2>규칙 스택</h2>
+    <p class="desc">같은 컬럼에 우선순위가 다른 규칙 3개를 쌓습니다. priority가 낮을수록 먼저 평가되고, stopIfTrue가 걸린 규칙이 이기면 그 아래(높은 priority) 규칙은 평가되지 않습니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdCfRuleStack_apply">규칙 스택 적용</button>
+        <button type="button" id="grdCfRuleStack_clear" class="secondary">해제</button>
+    </div>
+    <syn_opengrid id="grdCfRuleStack" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberName', '이름', 110, false, 'text'],
+            ['Point', '포인트', 160, false, 'number']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="cfRuleStack.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>SignaturePad - getValue / setValue</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 280px; max-width: 480px;">
+                <div>입력</div>
+                <syn_signaturepad id="sigSource" syn-datafield="Source" syn-options="{height: '160px'}"></syn_signaturepad>
+            </div>
+            <div style="flex: 1; min-width: 280px; max-width: 480px;">
+                <div>복사본 (setValue 로 채움)</div>
+                <syn_signaturepad id="sigTarget" syn-datafield="Target" syn-options="{height: '160px', readOnly: true, placeholder: '복사 전'}"></syn_signaturepad>
+            </div>
+        </div>
+        <div style="margin-top: 8px;">
+            <input type="button" id="btnCopy" value="getValue → setValue (입력 → 복사본)" syn-events="['click']" />
+            <input type="button" id="btnBase64" value="getBase64 (접두사 제외)" syn-events="['click']" />
+            <input type="button" id="btnSetBase64" value="setValue(순수 base64, 1x1 픽셀)" syn-events="['click']" />
+            <input type="button" id="btnSetInvalid" value="setValue(잘못된 값)" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear (둘 다)" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

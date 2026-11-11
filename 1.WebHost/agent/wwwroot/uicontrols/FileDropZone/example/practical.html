@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>FileDropZone - 게시글 첨부파일(실무형)</title>
+    <style>
+        .doc { max-width: 760px; padding: 20px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .doc h3 { margin: 0 0 4px; }
+        .doc .field { margin: 14px 0; }
+        .doc label { display: block; margin-bottom: 4px; font-weight: 600; }
+        .doc label.required::after { content: ' *'; color: #b91c1c; }
+        .doc input[type=text], .doc textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        .doc .hint { color: #64748b; font-size: 12px; }
+        .doc .actions { display: flex; gap: 8px; margin-top: 16px; }
+        .doc .error { color: #b91c1c; min-height: 20px; margin-top: 6px; }
+        .doc .saved { margin-top: 20px; }
+        .doc .saved button { margin: 0 6px 6px 0; }
+        .doc pre { padding: 12px; background: #f1f5f9; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow: auto; }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="doc">
+            <h3>게시글 등록</h3>
+            <div class="hint">첨부파일은 저장 전에도 업로드되며 임시 키로 보관됩니다. 저장하면 게시글 키로 옮겨집니다(updateDependencyID).</div>
+
+            <div class="field">
+                <label class="required" for="txtTitle">제목</label>
+                <input type="text" id="txtTitle" placeholder="제목을 입력하세요" />
+            </div>
+            <div class="field">
+                <label for="txtContent">내용</label>
+                <textarea id="txtContent" rows="3" placeholder="내용을 입력하세요"></textarea>
+            </div>
+            <div class="field">
+                <label>첨부파일 (최대 3개, 10MB)</label>
+                <!-- dependencyID 를 지정하지 않으면 임시 키(TEMP_...)가 자동 생성되고 기존 파일 조회는 하지 않습니다. -->
+                <syn_filedropzone id="fdzAttach" syn-datafield="Attachments" syn-events="['uploadError','change']" syn-options="{
+                    repositoryID: 'TSTLM01', applicationID: 'HDS', customPath1: 'HDS', height: '180px', controlText: '첨부파일'
+                }"></syn_filedropzone>
+                <div id="divError" class="error" role="alert"></div>
+            </div>
+
+            <div class="actions">
+                <button type="button" id="btnNew" syn-events="['click']">새 글</button>
+                <button type="button" id="btnSave" syn-events="['click']">저장</button>
+            </div>
+
+            <div class="saved">
+                <div style="font-weight: 600;">저장된 게시글 (클릭하면 첨부파일을 서버에서 다시 조회)</div>
+                <div id="divPosts" style="margin: 8px 0;">(없음)</div>
+                <pre id="preSaved">(저장 전)</pre>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

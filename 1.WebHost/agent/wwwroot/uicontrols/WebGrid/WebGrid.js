@@ -1306,22 +1306,26 @@
                 // syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
 
-            if ($object.isNullOrUndefined($grid.remainingReadyIntervalID) == true) {
-                $grid.remainingReadyIntervalID = setInterval(function () {
-                    if (syn.$w.isPageLoad == true) {
-                        clearInterval($grid.remainingReadyIntervalID);
-                        $grid.remainingReadyIntervalID = null;
+            if ($grid.isRenderScheduled != true) {
+                $grid.isRenderScheduled = true;
+                syn.$w.readyAsync().then(function () {
+                    $grid.isRenderScheduled = false;
 
-                        for (var i = 0, length = $grid.gridControls.length; i < length; i++) {
-                            var hot = $grid.gridControls[i].hot;
-                            hot.render();
-                        }
+                    for (var i = 0, length = $grid.gridControls.length; i < length; i++) {
+                        var hot = $grid.gridControls[i].hot;
+                        hot.render();
                     }
-                }, 25);
+                });
             }
         },
 
         dataRefresh(elID, setting, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $grid.dataRefresh(elID, setting, function () { resolve(); });
+                });
+            }
+
             var defaultSetting = {
                 columnName: null,
                 codeColumnID: null,
@@ -2715,19 +2719,35 @@
         },
 
         validateColumns(elID, columns, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $grid.validateColumns(elID, columns, function (valid) { resolve(valid); });
+                });
+            }
+
             var result = false;
             var hot = $grid.getGridControl(elID);
             if (hot) {
                 result = hot.validateColumns(columns, callback);
+            } else {
+                callback(false);
             }
             return result;
         },
 
         validateRows(elID, rows, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $grid.validateRows(elID, rows, function (valid) { resolve(valid); });
+                });
+            }
+
             var result = false;
             var hot = $grid.getGridControl(elID);
             if (hot) {
                 result = hot.validateRows(rows, callback);
+            } else {
+                callback(false);
             }
             return result;
         },
@@ -3179,6 +3199,12 @@
         },
 
         importFile(elID, callback) {
+            if (typeof callback !== 'function') {
+                return new Promise(function (resolve) {
+                    $grid.importFile(elID, function (fileName) { resolve(fileName); });
+                });
+            }
+
             var hot = $grid.getGridControl(elID);
             if (hot) {
                 var fileEL = syn.$l.get('{0}_ImportFile'.format(elID));

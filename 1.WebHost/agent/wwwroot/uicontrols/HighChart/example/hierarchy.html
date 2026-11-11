@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        HighChart 계층 관계
+    </title>
+    <link rel="stylesheet" href="highchartdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h2>
+            계층·관계 차트
+        </h2>
+        <p>
+            colorAxis와 series type을 통해 필요한 모듈과 의존 모듈을 자동으로 준비합니다.
+        </p>
+        <div class="demo-grid">
+            <section class="demo-card">
+                <h3>
+                    Heatmap
+                </h3>
+                <syn_chart id="chtHeatmap" class="demo-chart" syn-options="{ option:{} }">
+                </syn_chart>
+            </section>
+            <section class="demo-card">
+                <h3>
+                    Treemap·Treegraph
+                </h3>
+                <syn_chart id="chtTrees" class="demo-chart" syn-options="{ option:{} }">
+                </syn_chart>
+            </section>
+            <section class="demo-card">
+                <h3>
+                    Networkgraph
+                </h3>
+                <syn_chart id="chtNetwork" class="demo-chart" syn-options="{ option:{} }">
+                </syn_chart>
+            </section>
+            <section class="demo-card">
+                <h3>
+                    Sankey
+                </h3>
+                <syn_chart id="chtSankey" class="demo-chart" syn-options="{ option:{} }">
+                </syn_chart>
+            </section>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

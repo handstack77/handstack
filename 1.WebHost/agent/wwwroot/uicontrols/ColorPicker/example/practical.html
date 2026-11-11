@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>ColorPicker - 화면 테마 설정(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">시스템 관리 / 환경 설정</div>
+                                <h2 class="page-title">화면 테마 설정</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnReset" class="btn" syn-events="['click']"><i class="f:20 ti ti-arrow-back-up mr-2"></i> 기본값 복원</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-status-top bg-dark-overlay"></div>
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">색상 선택</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label required">주 색상(헤더/버튼)</label>
+                                            <syn_colorpicker id="clpPrimary" syn-datafield="PrimaryColor" syn-options="{defaultColor: '206BC4', controlText: '주 색상'}"></syn_colorpicker>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label required">강조 색상(알림/배지)</label>
+                                            <syn_colorpicker id="clpAccent" syn-datafield="AccentColor" syn-options="{defaultColor: 'F76707', controlText: '강조 색상'}"></syn_colorpicker>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">배경 색상</label>
+                                            <syn_colorpicker id="clpBackground" syn-datafield="BackgroundColor" syn-options="{defaultColor: 'F5F7FB', defineColors: ['FFFFFF', 'F5F7FB', 'F1F3F5', 'FFF9DB', 'E7F5FF', '1E1E2F'], controlText: '배경 색상'}"></syn_colorpicker>
+                                        </div>
+                                        <div id="divContrast" class="text-muted">대비 확인 중...</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="card overflow-auto mb-3">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">미리보기</h3>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div id="divPreviewBox" style="padding: 16px; min-height: 220px;">
+                                            <div id="divPreviewHeader" style="padding: 10px 14px; border-radius: 6px 6px 0 0; font-weight: bold;">주문 관리 시스템</div>
+                                            <div style="padding: 14px; background: #fff; border: 1px solid #ddd; border-top: 0;">
+                                                <p style="color: #333;">선택한 색상이 실제 화면에 적용된 모습입니다.</p>
+                                                <button type="button" id="btnPreviewPrimary" class="btn" style="color: #fff;">주 버튼</button>
+                                                <span id="spnPreviewBadge" class="badge" style="color: #fff;">신규 3건</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card overflow-auto">
+                                    <div class="card-header p-2 bg-primary-lt">
+                                        <h3 class="card-title">저장 결과 (서버 전송 대신 화면에 표시)</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <pre id="preResult" class="mb-0">저장 버튼을 누르면 선택한 색상이 JSON 으로 표시됩니다.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        // ColorPicker 는 내부 입력창을 TextBox 컨트롤로 만들기 때문에, 페이지에 TextBox 가 없으면 필요한 파일을 직접 추가합니다.
+        function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+            styleFiles.push('/uicontrols/TextBox/TextBox.css');
+            jsFiles.push('/lib/vanilla-masker/vanilla-masker.min.js');
+            jsFiles.push('/uicontrols/TextBox/TextBox.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

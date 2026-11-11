@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<title>
+		ChartJS 어댑터
+	</title>
+</head>
+<body style="visibility:hidden">
+	<form id="form1">
+		<h3>
+			Bubble 데이터 어댑터
+		</h3>
+		<p>
+			행 데이터를 Chart.js의 {x,y,r} point로 바꾸면서 원본 row index를 유지합니다.
+		</p>
+		<syn_chartjs id="chtBubble" syn-events="['pointClick','selectionChange','dataBound']" style="width:100%;height:420px" syn-options="{
+                type: 'bubble',
+                dataAdapter: '$chartjsadapter.method.bubbleAdapter',
+                selectionMode: 'multiple',
+                options: { scales: { x: { title: { display: true, text: '매출' } }, y: { title: { display: true, text: '이익' } } } }
+            }">
+		</syn_chartjs>
+		<input type="button" id="btnShow" value="선택 행 보기" syn-events="['click']">
+		<pre id="preResult">
+		</pre>
+	</form>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

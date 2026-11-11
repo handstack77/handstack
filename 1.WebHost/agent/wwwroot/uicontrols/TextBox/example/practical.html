@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>TextBox - 고객 등록 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">고객 관리 / 고객 등록</div>
+                                <h2 class="page-title">신규 고객 등록</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNew" class="btn" syn-events="['click']"><i class="f:20 ti ti-file-plus mr-2"></i> 신규</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 저장</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">기본 정보</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">고객 구분</label>
+                                    <div class="col align-content-center">
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoCustomerType1" name="rdoCustomerType" value="P" syn-events="['change']" checked>
+                                            <span class="form-check-label ml--1">개인</span>
+                                        </label>
+                                        <label class="form-check form-check-inline m-0 pr-2">
+                                            <input class="form-check-input" type="radio" id="rdoCustomerType2" name="rdoCustomerType" value="C" syn-events="['change']">
+                                            <span class="form-check-label ml--1">법인</span>
+                                        </label>
+                                    </div>
+                                    <label class="col-2 col-form-label">고객 번호</label>
+                                    <div class="col">
+                                        <input id="txtCustomerNo" type="text" class="form-control" readonly syn-options="{editType: 'text'}" placeholder="저장 시 자동 채번">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">고객명</label>
+                                    <div class="col">
+                                        <input id="txtCustomerName" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text', validators: ['require'], controlText: '고객명', placeText: ['고객명을 입력하세요']}">
+                                    </div>
+                                    <label class="col-2 col-form-label">영문 ID</label>
+                                    <div class="col">
+                                        <input id="txtLoginID" type="text" class="form-control" maxlength="20" syn-options="{editType: 'lowercase', controlText: '영문 ID'}" syn-events="['blur']">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">휴대전화</label>
+                                    <div class="col">
+                                        <input id="txtMobilePhoneNo" type="text" class="form-control" syn-options="{editType: 'mobilephone', validators: ['require'], controlText: '휴대전화'}">
+                                    </div>
+                                    <label class="col-2 col-form-label">일반전화</label>
+                                    <div class="col">
+                                        <input id="txtHomePhoneNo" type="text" class="form-control" syn-options="{editType: 'homephone', controlText: '일반전화'}">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">이메일</label>
+                                    <div class="col">
+                                        <input id="txtEmail" type="text" class="form-control" maxlength="100" syn-options="{editType: 'email', controlText: '이메일'}">
+                                    </div>
+                                    <label class="col-2 col-form-label">생년월일</label>
+                                    <div class="col">
+                                        <input id="txtBirthDate" type="text" class="form-control" syn-options="{editType: 'date', maskPattern: '9999-99-99', controlText: '생년월일'}">
+                                    </div>
+                                </div>
+                                <div id="rowCorporate" class="row mb-2 hidden">
+                                    <label class="col-2 col-form-label required">사업자번호</label>
+                                    <div class="col">
+                                        <input id="txtBusinessNo" type="text" class="form-control" syn-options="{editType: 'businessno', controlText: '사업자번호'}">
+                                    </div>
+                                    <label class="col-2 col-form-label">대표자명</label>
+                                    <div class="col">
+                                        <input id="txtCeoName" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text'}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">거래 조건</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">여신 한도</label>
+                                    <div class="col">
+                                        <div class="input-group">
+                                            <input id="txtCreditLimit" type="text" class="form-control text-end" syn-options="{editType: 'numeric', formatNumber: true, minCount: 0, maxCount: 999999999, controlText: '여신 한도'}" value="0">
+                                            <span class="input-group-text">원</span>
+                                        </div>
+                                    </div>
+                                    <label class="col-2 col-form-label">할인율(%)</label>
+                                    <div class="col">
+                                        <input id="txtDiscountRate" type="text" class="form-control text-end" syn-options="{editType: 'numeric', formatNumber: false, minCount: 0, maxCount: 50, controlText: '할인율'}" value="0">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">결제 시각</label>
+                                    <div class="col">
+                                        <div class="input-group">
+                                            <input id="txtPayHour" type="text" class="form-control" syn-options="{editType: 'hour'}" placeholder="시">
+                                            <input id="txtPayTime" type="text" class="form-control" syn-options="{editType: 'time5'}" placeholder="HH:mm">
+                                        </div>
+                                    </div>
+                                    <label class="col-2 col-form-label">비고</label>
+                                    <div class="col">
+                                        <input id="txtRemark" type="text" class="form-control" maxlengthB="100" syn-options="{editType: 'text', datalistItems: ['월말 정산', '선결제', '세금계산서 익월 발행']}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">저장 결과 (서버 전송 대신 화면에 표시)</h3>
+                            </div>
+                            <div class="card-body">
+                                <pre id="preResult" class="mb-0">저장 버튼을 누르면 입력값이 JSON 으로 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

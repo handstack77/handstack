@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>업로드 옵션 커스터마이징 - 다중 파일 업로드</div>
+            <p>getFileSetting으로 받은 기본 옵션에서 dependencyID, custom1~3, minHeight 값을 상황에 맞게 덮어써서 uploadUI를 호출합니다.</p>
+            소속 키(dependencyID) - <input type="text" id="txtAttachDependencyID" value="Board_00001" />
+            <br />
+            부가 경로(custom1) - <input type="text" id="txtAttachCustom1" value="2026" />
+            <syn_fileclient id="sfcAttachFiles" syn-datafield="AttachFiles" syn-options="{
+                repositoryID: 'TSTLM01'
+            }"></syn_fileclient>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnUploadAttachFiles" value="첨부파일 업로드" syn-events="['click']" />
+            <input type="button" id="btnGetValueAttachFiles" value="현재 값 확인" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

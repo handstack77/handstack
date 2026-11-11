@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>DropDownList - 주문 조회 화면(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">주문 관리 / 주문 현황</div>
+                                <h2 class="page-title">주문 현황 조회</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnReset" class="btn" syn-events="['click']"><i class="f:20 ti ti-refresh mr-2"></i> 초기화</button>
+                                    <button type="button" id="btnSearch" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-search mr-2"></i> 조회</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid">
+                        <div class="card mb-3">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">시/도</label>
+                                            <select id="ddlRegion" syn-options="{placeholder: '전체', toSynControl: true, required: false, width: 160}" syn-events="['change']"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">시/군/구</label>
+                                            <select id="ddlDistrict" syn-options="{placeholder: '전체', toSynControl: true, required: false, width: 160}" syn-events="['change']"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">주문 상태</label>
+                                            <select id="ddlStatus" syn-options="{placeholder: '전체', storeSourceID: 'ORDERSTATUS', local: true, sharedAssetUrl: './', toSynControl: true, width: 160}" syn-events="['change']"></select>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">고객명</label>
+                                            <input id="txtCustomerName" type="text" class="form-control" maxlengthB="40" syn-options="{editType: 'text'}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">주문 목록</h3>
+                                <div class="card-actions">
+                                    <span id="spnCount" class="mr-2">0건</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 120px;">주문 번호</th>
+                                            <th>고객명</th>
+                                            <th>지역</th>
+                                            <th>상태</th>
+                                            <th class="text-end">금액</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyOrders"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

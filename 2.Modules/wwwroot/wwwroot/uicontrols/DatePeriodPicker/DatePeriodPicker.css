@@ -12,7 +12,7 @@
 	overflow: hidden;
 }
 
-.syn-dateperiod-single:focus-within {
+.syn-dateperiod-single.form-control:focus-within {
 	border-color: #90b5e2;
 	box-shadow: 0 0 0 .25rem rgba(32, 107, 196, .25);
 }
@@ -28,6 +28,13 @@
 	border-radius: 0 !important;
 	box-shadow: none !important;
 	background: transparent !important;
+}
+
+/* 포커스는 바깥 상자에만 표시한다. 사용자 지정 입력 클래스와 키보드 이동에도 적용한다. */
+.syn-dateperiod-single .syn-dateperiod-input:focus,
+.syn-dateperiod-single .syn-dateperiod-button:focus {
+	outline: 0 !important;
+	box-shadow: none !important;
 }
 
 .syn-dateperiod-single .syn-dateperiod-separator {

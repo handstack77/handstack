@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownList - 원격 데이터소스 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p>원격 데이터소스(<code>local: false</code>)를 사용하는 예제입니다. <code>syn.$w.getDataSource(dataSourceID, parameters, callback)</code>를 통해 서버에서 코드값을 조회하며, 실제 서비스에서는 백엔드 API가 응답을 내려줘야 정상 동작합니다.</p>
+            <select id="ddlBusinessRank" syn-options="{
+                placeholder: '등급을 선택하세요',
+                dataSourceID: 'CH000',
+                storeSourceID: 'MS002',
+                parameters: '@GROUPCODE:MS002;',
+                local: false,
+                toSynControl: true,
+                required: false
+            }" style="width: 220px;"></select>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="선택값 조회" syn-events="['click']" />
+            <input type="button" id="btnDataRefresh" value="원격 데이터 다시 조회" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

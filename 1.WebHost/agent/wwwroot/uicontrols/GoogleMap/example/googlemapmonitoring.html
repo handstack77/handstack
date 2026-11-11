@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>
+        GoogleMap 모니터링 예제
+    </title>
+    <link rel="stylesheet" href="googlemapdemo.css" />
+</head>
+<body style="visibility: hidden;">
+    <form id="form1" syn-datafield="MainForm">
+        <div class="demo-card">
+            <div class="demo-nav">
+                <a href="index.html">
+                    ← 예제 목록
+                </a>
+            </div>
+            <h3>
+                Advanced Marker 모니터링 POI
+            </h3>
+            <syn_googlemap id="mapMonitor" class="demo-map" syn-datafield="Assets" syn-events="['poiClick','poiMouseover','poiMouseout','dataBound','error']" syn-options="{fitBoundsOnData:true,mapOptions:{zoom:11,minZoom:6}}">
+            </syn_googlemap>
+            <pre id="preResult">POI를 클릭하세요.</pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

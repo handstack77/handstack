@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>그리드 간 이동 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 특수 기능</div>
+    <h2>그리드 간 이동</h2>
+    <p class="desc">체크된 행을 왼쪽 ↔ 오른쪽 그리드 사이로 이동합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdCrossGridMove_toRight">선택 → 오른쪽</button>
+        <button type="button" id="grdCrossGridMove_toLeft" class="secondary">← 왼쪽 선택</button>
+    </div>
+    <div class="demo-split">
+        <syn_opengrid id="grdCrossGridMove_left" class="demo-grid" syn-options="{
+            editable: true,
+            columns: [
+                ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+                ['MemberName', '이름', 120, false, 'text'],
+                ['UseYN', '선택', 70, false, 'checkbox', false, 'center']
+            ]
+        }"></syn_opengrid>
+        <syn_opengrid id="grdCrossGridMove_right" class="demo-grid" syn-options="{
+            editable: true,
+            columns: [
+                ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+                ['MemberName', '이름', 120, false, 'text'],
+                ['UseYN', '선택', 70, false, 'checkbox', false, 'center']
+            ]
+        }"></syn_opengrid>
+    </div>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="crossGridMove.js"></script>
+</body>
+</html>

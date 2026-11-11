@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-03 셀 입력 막기·고치기 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-03 · 셀 입력 막기·고치기</h2>
+    <p class="desc">grid.override("writeCell", ...)로 Point에 음수를 입력하면 0으로 자동 보정합니다. 더블클릭으로 편집해 보세요.</p>
+    <syn_opengrid id="grdOv03" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [['MemberName', '이름', 120, false, 'text'], ['Point', '포인트(음수 입력 시 0으로 보정)', 220, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov03.js"></script>
+</body>
+</html>

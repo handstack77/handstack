@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>부서 선택 팝업 - 실무에서 가장 흔한 TreeView 배치 형태</div>
+            <p>
+                실무 화면에서 TreeView는 사이드바가 아니라 대부분 <b>부서/조직 선택 팝업</b> 안에 들어갑니다. 서버가
+                내려주는 원본 필드명(<code>ProgramID</code>/<code>ProgramName</code>/<code>ParentID</code>/<code>FolderYN</code>)을
+                그대로 쓰고, <code>reduceMap</code>으로 트리가 요구하는 <code>key</code>/<code>title</code>/<code>parentID</code>/<code>folder</code>
+                형태에 매핑합니다. 노드를 더블클릭하면 값을 숨김 입력창에 채우고 팝업을 닫습니다.
+            </p>
+
+            <input type="text" id="txtDepartmentNo" readonly placeholder="선택된 부서 코드">
+            <input type="button" id="btnOpenDepartment" value="부서 선택" syn-events="['click']">
+
+            <div id="divDepartmentPicker" style="display:none; border:1px solid #ccc; padding:8px; margin-top:8px;">
+                <input type="text" id="txtTreeNodeFilter" syn-events="['keydown']" placeholder="이름으로 검색 후 Enter">
+                <syn_tree id="tvlTreeView" syn-options="{
+                    checkbox: false,
+                    itemID: 'key', parentItemID: 'parentID', childrenID: 'children',
+                    reduceMap: { key: 'ProgramID', title: 'ProgramName', parentID: 'ParentID', folder: 'FolderYN', icon: false },
+                    height: '260px',
+                    extensions: ['filter']
+                }" syn-events="['dblclick']"></syn_tree>
+                <input type="button" id="btnCloseDepartment" value="닫기" syn-events="['click']">
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - getValue / setValue / clear 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>사용 여부</div>
+            <input id="rdoUseYn1" name="rdoUseYn" type="radio" syn-datafield="UseYn" value="Y"
+                checked="checked" syn-options="{textContent: '사용', toSynControl: true}">
+            <input id="rdoUseYn2" name="rdoUseYn" type="radio" syn-datafield="UseYn" value="N"
+                syn-options="{textContent: '미사용', toSynControl: true}">
+        </div>
+        <hr />
+        <div>
+            <div>기능 실행</div>
+            <input type="button" id="btnGetValue" value="getValue (rdoUseYn1)" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue (rdoUseYn1 = true)" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear (rdoUseYn1)" syn-events="['click']" />
+            <input type="button" id="btnSelectedValue" value="selectedValue (rdoUseYn = 'N')" syn-events="['click']" />
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownCheckList - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>DropDownCheckList 전체 기능 확인</h3>
+        <p>
+            <code>multiple</code> 선택, <code>multiSelectAll</code>(전체 선택), <code>search</code>, <code>placeholder</code>/<code>required</code>, <code>width</code>,
+            로컬 JSON 데이터소스와 <code>selectedValue</code>, <code>getValue</code>(콤마 문자열)/<code>getSelectedValue</code>(배열)/<code>getSelectedText</code>,
+            <code>setValue</code>/<code>setSelectedValue</code>/<code>setSelectedText</code>/<code>setSelectedIndex</code>, <code>clear</code>, <code>disabled</code>,
+            <code>setSelectedDisabled</code>, <code>loadData</code>, <code>dataRefresh</code> 를 확인합니다.
+        </p>
+
+        <h4>1. 옵션</h4>
+        <table class="table table-sm" style="max-width: 900px;">
+            <thead><tr><th style="width: 340px;">옵션 조합</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>기본 (multiSelectAll 기본값 true)</td>
+                    <td><select id="ddlGrade" multiple syn-options="{placeholder: '등급을 선택하세요', toSynControl: true}" syn-events="['change']" style="width: 260px;">
+                        <option value="A">A등급</option><option value="B">B등급</option><option value="C">C등급</option><option value="D">D등급</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>전체 선택 숨김 (multiSelectAll: false)</td>
+                    <td><select id="ddlNoAll" multiple syn-options="{placeholder: '선택', toSynControl: true, multiSelectAll: false}" style="width: 260px;">
+                        <option value="A">A등급</option><option value="B">B등급</option><option value="C">C등급</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>검색창 (search: true) + 고정 너비</td>
+                    <td><select id="ddlSearch" multiple syn-options="{placeholder: '지역 검색', toSynControl: true, search: true, width: 300}">
+                        <option value="SEO">서울</option><option value="BUS">부산</option><option value="DAE">대구</option><option value="INC">인천</option><option value="GWA">광주</option><option value="DAJ">대전</option><option value="ULS">울산</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>로컬 JSON 데이터소스 + 초기 선택 (selectedValue)</td>
+                    <td><select id="ddlCategory" multiple syn-options="{placeholder: '분류를 선택하세요', storeSourceID: 'CATEGORY', local: true, sharedAssetUrl: './', toSynControl: true, selectedValue: 'FOD,BEV'}" syn-events="['change']" style="width: 300px;"></select></td>
+                </tr>
+                <tr>
+                    <td>네이티브 모양 (toSynControl: false)</td>
+                    <td><select id="ddlNative" multiple class="form-select" syn-options="{toSynControl: false}" style="width: 260px; height: 90px;">
+                        <option value="1">항목 1</option><option value="2">항목 2</option><option value="3">항목 3</option>
+                    </select></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>2. 값 조회 / 설정</h4>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue (콤마 문자열)" syn-events="['click']">
+            <input type="button" id="btnGetSelectedValue" value="getSelectedValue (배열)" syn-events="['click']">
+            <input type="button" id="btnGetSelectedText" value="getSelectedText (텍스트 배열)" syn-events="['click']">
+            <input type="button" id="btnGetSelectedIndex" value="getSelectedIndex (인덱스 배열)" syn-events="['click']">
+        </div>
+        <div class="mb-2">
+            <input type="button" id="btnSetValue" value="setValue('A,C')" syn-events="['click']">
+            <input type="button" id="btnSetSelectedValue" value="setSelectedValue(['B','D']) 교체" syn-events="['click']">
+            <input type="button" id="btnSetSelectedText" value="setSelectedText('A등급')" syn-events="['click']">
+            <input type="button" id="btnSetSelectedIndex" value="setSelectedIndex([0, 2])" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+        </div>
+
+        <h4>3. 상태 / 데이터 갱신</h4>
+        <div class="mb-2">
+            <input type="button" id="btnDisabled" value="disabled(true)" syn-events="['click']">
+            <input type="button" id="btnEnabled" value="disabled(false)" syn-events="['click']">
+            <input type="button" id="btnLockSelected" value="setSelectedDisabled(true) 선택 잠금" syn-events="['click']">
+            <input type="button" id="btnUnlockSelected" value="setSelectedDisabled(false)" syn-events="['click']">
+            <input type="button" id="btnLoadData" value="loadData (옵션 교체)" syn-events="['click']">
+            <input type="button" id="btnDataRefresh" value="dataRefresh (JSON 다시 읽기)" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

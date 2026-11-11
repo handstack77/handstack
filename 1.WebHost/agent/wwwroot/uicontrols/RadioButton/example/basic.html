@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>RadioButton - 기본 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>배송 방법을 선택하세요</div>
+            <input id="rdoDelivery1" name="rdoDelivery" type="radio" syn-datafield="DeliveryType" value="standard"
+                checked="checked" syn-events="['change']" syn-options="{textContent: '일반 배송', toSynControl: true}">
+            <input id="rdoDelivery2" name="rdoDelivery" type="radio" syn-datafield="DeliveryType" value="express"
+                syn-events="['change']" syn-options="{textContent: '빠른 배송', toSynControl: true}">
+            <input id="rdoDelivery3" name="rdoDelivery" type="radio" syn-datafield="DeliveryType" value="pickup"
+                syn-events="['change']" syn-options="{textContent: '매장 픽업', toSynControl: true}">
+            <input id="rdoDelivery4" name="rdoDelivery" type="radio" syn-datafield="DeliveryType" value="dawn"
+                syn-events="['change']" syn-options="{textContent: '새벽 배송', toSynControl: true}">
+        </div>
+    </form>
+
+    <!-- syn.loader.js가 화면의 컨트롤을 스캔해서 필요한 CSS/JS를 자동으로 불러옵니다. -->
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

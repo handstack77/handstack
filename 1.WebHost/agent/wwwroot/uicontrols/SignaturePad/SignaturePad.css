@@ -1,0 +1,8 @@
+syn_signaturepad { display: block; }
+.syn-signaturepad { position: relative; box-sizing: border-box; min-width: 0; background-color: #fff; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
+.syn-signaturepad .syn-signaturepad-canvas { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+.syn-signaturepad .syn-signaturepad-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 12px; color: #94a3b8; font-size: 14px; pointer-events: none; user-select: none; }
+.syn-signaturepad .syn-signaturepad-placeholder[hidden] { display: none; }
+.syn-signaturepad.syn-signaturepad-readonly { background-color: #f8fafc; }
+.syn-signaturepad.syn-signaturepad-readonly .syn-signaturepad-canvas, .syn-signaturepad.syn-signaturepad-disabled .syn-signaturepad-canvas { cursor: default; touch-action: auto; }
+.syn-signaturepad.syn-signaturepad-disabled { opacity: .6; background-color: #f1f5f9; }

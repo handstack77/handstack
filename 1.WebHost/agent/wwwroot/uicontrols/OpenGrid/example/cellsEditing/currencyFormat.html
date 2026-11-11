@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>통화 포맷 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 셀 & 편집</div>
+    <h2>통화 포맷</h2>
+    <p class="desc">ColumnDef.format으로 통화·천단위·음수 괄호 표기를 적용합니다.</p>
+    <syn_opengrid id="grdCurrencyFormat" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberName', '이름', 110, false, 'text'],
+            ['Salary', '급여', 140, false, 'number', true, 'right', null, { format: '₩#,##0' }],
+            ['ChangeRate', '증감률', 120, false, 'number', true, 'right', null, { format: '#,##0.0;(#,##0.0)' }]
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="currencyFormat.js"></script>
+</body>
+</html>

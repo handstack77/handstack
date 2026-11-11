@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        ECharts Dynamic
+    </title>
+    <link rel="stylesheet" href="echartsdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h2>
+            비동기·동적·연결 차트
+        </h2>
+        <p>
+            Promise adapter의 최신 호출 우선, appendData, 반복 setOption과 connect/disconnect를 확인합니다.
+        </p>
+        <div class="demo-grid">
+            <section class="demo-card">
+                <h3>
+                    비동기 Dataset
+                </h3>
+                <syn_echarts id="chtAsync" class="demo-chart" syn-options="{ dataAdapter:'$echartsdynamic.method.asyncAdapter', option:{ xAxis:{type:'category'}, yAxis:{}, series:[{type:'bar',encode:{x:'NAME',y:'VALUE'}}] } }">
+                </syn_echarts>
+            </section>
+            <section class="demo-card">
+                <h3>
+                    AppendData 연결 차트
+                </h3>
+                <syn_echarts id="chtStream" class="demo-chart" syn-options="{ group:'dynamic-group', option:{} }">
+                </syn_echarts>
+            </section>
+        </div>
+        <div class="demo-actions">
+            <input id="btnAsync" type="button" value="비동기 최신 요청" syn-events="['click']">
+            <input id="btnAppend" type="button" value="appendData" syn-events="['click']">
+            <input id="btnConnect" type="button" value="connect/disconnect" syn-events="['click']">
+        </div>
+        <pre id="preResult">
+
+동적 API를 실행하세요.
+			
+			</pre>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

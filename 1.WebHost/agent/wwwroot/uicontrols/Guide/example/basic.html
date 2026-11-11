@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>기본 사용법 - 화면 요소 3개를 순서대로 안내하는 투어(helpType: 'I')</div>
+            <p>아래 "사용법 안내 시작" 버튼을 눌러 투어를 시작해 보세요. 이전/다음 버튼으로 이동하고, ESC 또는 닫기(X) 버튼으로 중간에 닫을 수 있습니다.</p>
+
+            <div style="display:flex; gap:12px; margin-bottom:12px;">
+                <div id="divRangeButtonGroup" style="padding:10px; background:#eee; border:1px solid #ccc;">조회 기간 버튼 그룹</div>
+                <div id="divTransactionDetail" style="padding:10px; background:#eee; border:1px solid #ccc;">거래 상세 영역</div>
+                <input type="button" id="btnNewDataSource" value="신규 데이터 원본" />
+            </div>
+
+            <syn_guide id="hlpDataSource" syn-options="{
+                items: [
+                    { helpType: 'I', selector: '#divRangeButtonGroup', subject: '조회 기간을 설정합니다.', sentence: '오늘/일주일/한달 단위로 조회 기간을 선택할 수 있습니다.', sortingNo: 1 },
+                    { helpType: 'I', selector: '#divTransactionDetail', subject: '거래 상세 내역입니다.', sentence: '선택한 기간의 거래 내역이 이 영역에 표시됩니다.', sortingNo: 2 },
+                    { helpType: 'I', selector: '#btnNewDataSource', subject: '신규 데이터 원본을 설정하세요.', sentence: 'SqlServer, Oracle, MySQL & MariaDB, PostgreSQL, SQLite 데이터베이스를 연동하세요.', sortingNo: 3 }
+                ]
+            }" syn-events="['complete', 'exit']"></syn_guide>
+
+            <input type="button" id="btnStartGuide" value="사용법 안내 시작" syn-events="['click']" />
+        </div>
+        <hr />
+        <div>
+            <div>이벤트 로그</div>
+            <pre id="preLog"></pre>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

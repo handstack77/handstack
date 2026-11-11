@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        ECharts Relation
+    </title>
+    <link rel="stylesheet" href="echartsdemo.css">
+</head>
+<body style="visibility:hidden">
+    <form id="form1">
+        <div class="demo-nav">
+            <a href="index.html">
+                ← 예제 목록
+            </a>
+        </div>
+        <h2>
+            관계 series
+        </h2>
+        <p>
+            graph, sankey, lines, ECharts 6 chord를 표시하고 node/edge를 서로 다른 원본 행에 연결합니다.
+        </p>
+        <div class="demo-grid">
+            <section class="demo-card">
+                <h3>
+                    Graph · Sankey
+                </h3>
+                <syn_echarts id="chtFlow" class="demo-chart tall" syn-events="['click','selectionChange']" syn-options="{ selectionMode:'multiple', option:{} }">
+                </syn_echarts>
+            </section>
+            <section class="demo-card">
+                <h3>
+                    Lines · Chord
+                </h3>
+                <syn_echarts id="chtChord" class="demo-chart tall" syn-events="['click']" syn-options="{ option:{} }">
+                </syn_echarts>
+            </section>
+            <section class="demo-card">
+                <h3>
+                    선택 결과
+                </h3>
+                <pre id="preResult">
+
+
+node 또는 edge를 선택하세요.
+					
+					
+					</pre>
+            </section>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-22 OR/커스텀 필터 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-22 · OR/커스텀 필터</h2>
+    <p class="desc">grid.override.strategy("filterPredicate", fn)의 filterItem.value에 배열을 담아, "개발팀 또는 지원팀"처럼 한 필드에 여러 값을 OR로 매칭하는 커스텀 필터를 구현합니다(기본 연산자 =/!=/&gt;/&gt;=/&lt;/&lt;= 는 그대로 폴백 지원).</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv22_apply">OR 필터 적용(개발팀 또는 지원팀)</button>
+        <button type="button" id="grdOv22_clear" class="secondary">해제</button>
+    </div>
+    <syn_opengrid id="grdOv22" class="demo-grid" syn-options="{
+        columns: [['Department', '부서', 110, false, 'text'], ['MemberName', '이름', 120, false, 'text'], ['Point', '포인트', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov22.js"></script>
+</body>
+</html>

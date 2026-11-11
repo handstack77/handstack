@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownList - 이벤트 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>change</code> 이벤트와 <code>getSelectedValue</code> / <code>setSelectedValue</code> API를 함께 보여주는 예제입니다. 옵션을 바꿀 때마다 하단 로그(브라우저 개발자 도구 콘솔)에 이벤트가 기록됩니다.</p>
+            <select id="ddlGender" syn-events="['change']" syn-options="{
+                placeholder: '성별을 선택하세요',
+                toSynControl: true,
+                required: false
+            }" style="width: 220px;">
+                <option value="M">남자</option>
+                <option value="F">여자</option>
+                <option value="N">공개안함</option>
+            </select>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetSelectedValue" value="getSelectedValue" syn-events="['click']" />
+            <input type="button" id="btnGetSelectedText" value="getSelectedText" syn-events="['click']" />
+            <input type="button" id="btnSetSelectedValue" value="setSelectedValue('F')" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

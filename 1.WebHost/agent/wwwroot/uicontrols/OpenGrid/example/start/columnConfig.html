@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>컬럼 설정 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 시작하기</div>
+    <h2>컬럼 설정</h2>
+    <p class="desc">너비 · 정렬 · 표시형식(format) · 숨김/표시 등 컬럼 단위 옵션 조합을 보여줍니다.</p>
+
+    <div class="demo-toolbar">
+        <button type="button" id="grdColumnConfig_toggleEmail">Email 컬럼 숨김/표시</button>
+    </div>
+
+    <syn_opengrid id="grdColumnConfig" class="demo-grid" syn-options="{
+        columns: [
+            ['MemberNo', '번호', 60, false, 'number', true, 'center'],
+            ['MemberName', '이름', 100, false, 'text', false, 'left'],
+            ['Email', '이메일', 200, false, 'text', false, 'left'],
+            ['Salary', '급여(₩)', 130, false, 'number', true, 'right', null, { format: '₩#,##0' }]
+        ]
+    }"></syn_opengrid>
+
+    <div id="divLog" class="log-panel"></div>
+
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="columnConfig.js"></script>
+</body>
+</html>

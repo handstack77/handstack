@@ -1,0 +1,12 @@
+{
+    "Comment": "DropDownCheckList 로컬 데이터소스 예제",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "DataSource": [
+        { "CodeID": "TXT", "CodeValue": "텍스트 파일(.txt)" },
+        { "CodeID": "CSV", "CodeValue": "엑셀 CSV(.csv)" },
+        { "CodeID": "PDF", "CodeValue": "PDF 문서(.pdf)" },
+        { "CodeID": "ZIP", "CodeValue": "압축 파일(.zip)" },
+        { "CodeID": "IMG", "CodeValue": "이미지 파일(.jpg, .png)" }
+    ]
+}

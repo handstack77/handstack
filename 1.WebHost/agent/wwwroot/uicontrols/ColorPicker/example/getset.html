@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>예시</div>
+            <syn_colorpicker id="clpColor" syn-datafield="Color" syn-options="{
+                defaultColor: '00FF00'
+            }"></syn_colorpicker>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue('#FF00FF')" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script>
+        // ColorPicker 는 내부 입력창을 TextBox 컨트롤로 만들기 때문에, 페이지에 TextBox 가 없으면 필요한 파일을 직접 추가합니다.
+        function pageLoadFiles(jsFiles, styleFiles, templateFiles) {
+            styleFiles.push('/uicontrols/TextBox/TextBox.css');
+            jsFiles.push('/lib/vanilla-masker/vanilla-masker.min.js');
+            jsFiles.push('/uicontrols/TextBox/TextBox.js');
+        }
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

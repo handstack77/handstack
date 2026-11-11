@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePicker - 날짜+시간(useTime) 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>날짜 + 시간 (useTime: true, YYYY-MM-DD HH:mm)</div>
+            <syn_datepicker id="dtpDateTime" syn-datafield="DateTime" syn-options="{useTime: true}"></syn_datepicker>
+        </div>
+        <hr />
+        <div>
+            <div>현재 일시를 기본값으로 + 분 단위 10분 간격(minuteStep)</div>
+            <syn_datepicker id="dtpNow" syn-options="{useTime: true, minuteStep: 10, value: 'now'}"></syn_datepicker>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

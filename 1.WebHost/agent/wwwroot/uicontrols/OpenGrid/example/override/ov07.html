@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OV-07 컬럼 적용 전후 가공 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · Override</div>
+    <h2>OV-07 · 컬럼 적용 전후 가공</h2>
+    <p class="desc">grid.override("applyColumns", ...)로 컬럼 재적용 전/후 로그를 남깁니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdOv07_apply">컬럼 폭 절반으로 재적용</button>
+    </div>
+    <syn_opengrid id="grdOv07" class="demo-grid" syn-options="{
+        columns: [['MemberNo', '번호', 70, false, 'number', true, 'center'], ['MemberName', '이름', 120, false, 'text'], ['Point', '포인트', 100, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="ov07.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>행높이 · 헤더높이 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 스타일 & 테마</div>
+    <h2>행높이 · 헤더높이</h2>
+    <p class="desc">rowHeight 옵션으로 행 높이를 조정한 그리드입니다(생성 시점 옵션).</p>
+    <syn_opengrid id="grdRowHeaderHeight" class="demo-grid" syn-options="{
+        rowHeight: 44,
+        columns: [
+            ['MemberNo', '번호', 70, false, 'number', true, 'center'],
+            ['MemberName', '이름', 120, false, 'text']
+        ]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="rowHeaderHeight.js"></script>
+</body>
+</html>

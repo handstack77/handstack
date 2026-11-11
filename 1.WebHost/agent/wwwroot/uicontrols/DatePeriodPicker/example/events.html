@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DatePeriodPicker - 이벤트 예제</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <p><code>onselect</code>, <code>onreset</code>, <code>onconfirm</code> 이벤트와 <code>getValue</code> / <code>setValue</code> / <code>clear</code> API를 함께 보여주는 예제입니다. 팝업에서 날짜를 클릭하거나 "기간 선택 취소" / "확인" 버튼을 누를 때마다, 그리고 아래 버튼을 클릭할 때마다 하단 로그(브라우저 개발자 도구 콘솔)에 이벤트가 기록됩니다.</p>
+            <div>
+                <label>조회 기간</label>
+                <syn_dateperiodpicker id="dtpSearchPeriod" syn-datafield="SearchPeriod" syn-events="['onselect', 'onreset', 'onconfirm']"></syn_dateperiodpicker>
+            </div>
+        </div>
+        <hr />
+        <div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue('2026-01-01,2026-01-31')" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

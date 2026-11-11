@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F3-01 견적서 자동 합계 - OpenGrid 예제</title>
+    <link rel="stylesheet" href="../../OpenGrid.css">
+    <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+    <div class="demo-nav"><a href="../index.html">← 목록으로</a> · 업무용 기능</div>
+    <h2>F3-01 · 견적서 자동 합계</h2>
+    <p class="desc">단가 × 수량 수식을 전체 행에 걸고, Footer에 합계를 표시합니다.</p>
+    <div class="demo-toolbar">
+        <button type="button" id="grdF301_apply">수식 + 합계 적용</button>
+    </div>
+    <syn_opengrid id="grdF301" class="demo-grid" syn-options="{
+        editable: true,
+        columns: [['ProdName', '상품명', 140, false, 'text'], ['Price', '단가', 100, false, 'number'], ['Qty', '수량', 80, false, 'number'], ['Total', '합계', 110, false, 'number']]
+    }"></syn_opengrid>
+    <div id="divLog" class="log-panel"></div>
+    <script src="../../../../js/syn.js"></script>
+    <script src="../../CodePicker/CodePicker.js"></script>
+    <script src="../../OpenGrid.js"></script>
+    <script src="../common.js"></script>
+    <script src="f301.js"></script>
+</body>
+</html>

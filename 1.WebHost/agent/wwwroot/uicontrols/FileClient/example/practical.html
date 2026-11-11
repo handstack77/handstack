@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>FileClient - 게시글 작성과 첨부파일(실무형)</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2">
+                    <div class="container-fluid">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle f:12!">게시판 / 자료실</div>
+                                <h2 class="page-title">자료실 글쓰기</h2>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNew" class="btn" syn-events="['click']"><i class="f:20 ti ti-file-plus mr-2"></i> 새 글</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary" syn-events="['click']"><i class="f:20 ti ti-device-floppy mr-2"></i> 등록</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body m-3">
+                    <div class="container-fluid max-width:1000!">
+                        <div class="alert alert-info mb-3">
+                            첨부 업로드/조회/삭제는 <code>repository</code> 모듈과 샘플 저장소 <code>TSTLM01</code>(다중 첨부)이 있는 환경에서 동작합니다.
+                            글을 등록하기 전에는 임시 <code>dependencyID</code> 로 파일을 올려 두고, 등록할 때 실제 글 번호로 바꿉니다.
+                        </div>
+                        <div class="card overflow-auto mb-3">
+                            <div class="card-status-top bg-dark-overlay"></div>
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">글 내용</h3>
+                                <div class="card-actions">
+                                    <span class="mr-2">임시 첨부 키: <code id="spnTempID">-</code></span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">제목</label>
+                                    <div class="col">
+                                        <input id="txtTitle" type="text" class="form-control" maxlengthB="100" syn-options="{editType: 'text', controlText: '제목'}">
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label required">내용</label>
+                                    <div class="col">
+                                        <textarea id="txtContent" class="form-control" syn-options="{toSynControl: false}" maxlength="2000" style="height: 120px;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <label class="col-2 col-form-label">첨부파일</label>
+                                    <div class="col">
+                                        <syn_fileclient id="sfcAttach" syn-datafield="AttachFiles" syn-options="{repositoryID: 'TSTLM01', dialogTitle: '첨부파일 업로드', fileUpdateCallback: 'attachUpdated'}"></syn_fileclient>
+                                        <button type="button" id="btnUpload" class="btn btn-sm" syn-events="['click']"><i class="f:18 ti ti-paperclip mr-1"></i> 파일 첨부</button>
+                                        <button type="button" id="btnRefresh" class="btn btn-sm" syn-events="['click']"><i class="f:18 ti ti-refresh mr-1"></i> 목록 새로고침</button>
+                                        <div id="divAttachList" class="mt-2 text-muted">첨부된 파일이 없습니다.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card overflow-auto">
+                            <div class="card-header p-2 bg-primary-lt">
+                                <h3 class="card-title">등록 결과 (서버 전송 대신 화면에 표시)</h3>
+                            </div>
+                            <div class="card-body">
+                                <pre id="preResult" class="mb-0">등록 버튼을 누르면 글 정보와 첨부 키 변경 결과가 표시됩니다.</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

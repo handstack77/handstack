@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DropDownList - 전체 기능 확인</title>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <h3>DropDownList 전체 기능 확인</h3>
+        <p>
+            <code>placeholder</code>/<code>required</code>, <code>search</code>, <code>width</code>, <code>selectedValue</code>, <code>toSynControl</code>(네이티브 모양),
+            로컬 JSON 데이터소스(<code>storeSourceID</code>/<code>local</code>/<code>sharedAssetUrl</code>), <code>loadData</code>/<code>dataRefresh</code>/<code>controlReload</code>,
+            선택/조회 API 와 <code>disabled</code>/<code>setSelectedDisabled</code> 를 한 화면에서 확인합니다.
+        </p>
+
+        <h4>1. 옵션</h4>
+        <table class="table table-sm" style="max-width: 900px;">
+            <thead><tr><th style="width: 340px;">옵션 조합</th><th>컨트롤</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>정적 &lt;option&gt; 사용 - placeholder 는 데이터소스/loadData 로 채울 때만 자동 추가되므로 빈 값 옵션을 직접 선언</td>
+                    <td><select id="ddlPlaceholder" syn-options="{toSynControl: true}" syn-events="['change']" style="width: 220px;">
+                        <option value="">과일을 선택하세요</option><option value="apple">사과</option><option value="banana">바나나</option><option value="grape">포도</option><option value="orange">오렌지</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>required: true (빈 값 옵션 없음)</td>
+                    <td><select id="ddlRequired" syn-options="{toSynControl: true, required: true}" style="width: 220px;">
+                        <option value="apple">사과</option><option value="banana">바나나</option><option value="grape">포도</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>검색창 (search: true)</td>
+                    <td><select id="ddlSearch" syn-options="{placeholder: '지역 검색', toSynControl: true, search: true}" style="width: 220px;">
+                        <option value="SEO">서울</option><option value="BUS">부산</option><option value="DAE">대구</option><option value="INC">인천</option><option value="GWA">광주</option><option value="DAJ">대전</option><option value="ULS">울산</option><option value="SEJ">세종</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>고정 너비 (width: 300)</td>
+                    <td><select id="ddlWidth" syn-options="{placeholder: '전체', toSynControl: true, width: 300}">
+                        <option value="apple">사과</option><option value="banana">바나나</option><option value="grape">포도</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>네이티브 모양 (toSynControl: false)</td>
+                    <td><select id="ddlNative" class="form-select" syn-options="{toSynControl: false}" style="width: 220px;">
+                        <option value="apple">사과</option><option value="banana">바나나</option><option value="grape">포도</option>
+                    </select></td>
+                </tr>
+                <tr>
+                    <td>로컬 JSON 데이터소스 (code/ORDERSTATUS.json) - placeholder '전체' 가 맨 앞에 추가됨 + 초기 선택 (selectedValue: 'PAY')</td>
+                    <td><select id="ddlStatus" syn-options="{placeholder: '전체', storeSourceID: 'ORDERSTATUS', local: true, sharedAssetUrl: './', toSynControl: true, selectedValue: 'PAY'}" syn-events="['change']" style="width: 220px;"></select></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>2. 값 조회 / 설정</h4>
+        <div class="mb-2">
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']">
+            <input type="button" id="btnGetSelectedText" value="getSelectedText" syn-events="['click']">
+            <input type="button" id="btnGetSelectedIndex" value="getSelectedIndex" syn-events="['click']">
+            <input type="button" id="btnSetValue" value="setValue('grape')" syn-events="['click']">
+            <input type="button" id="btnSetSelectedValue" value="setSelectedValue('apple')" syn-events="['click']">
+            <input type="button" id="btnSetSelectedText" value="setSelectedText('바나나')" syn-events="['click']">
+            <input type="button" id="btnSetSelectedIndex" value="setSelectedIndex(3)" syn-events="['click']">
+            <input type="button" id="btnClear" value="clear" syn-events="['click']">
+        </div>
+
+        <h4>3. 상태 / 데이터 갱신</h4>
+        <div class="mb-2">
+            <input type="button" id="btnDisabled" value="disabled(true)" syn-events="['click']">
+            <input type="button" id="btnEnabled" value="disabled(false)" syn-events="['click']">
+            <input type="button" id="btnLockSelected" value="setSelectedDisabled(true) 선택 잠금" syn-events="['click']">
+            <input type="button" id="btnUnlockSelected" value="setSelectedDisabled(false)" syn-events="['click']">
+            <input type="button" id="btnLoadData" value="loadData (옵션 교체)" syn-events="['click']">
+            <input type="button" id="btnDataRefresh" value="dataRefresh (JSON 다시 읽기)" syn-events="['click']">
+            <input type="button" id="btnControlReload" value="controlReload (UI 다시 그리기)" syn-events="['click']">
+            <input type="button" id="btnGetControl" value="getControl" syn-events="['click']">
+        </div>
+    </form>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
