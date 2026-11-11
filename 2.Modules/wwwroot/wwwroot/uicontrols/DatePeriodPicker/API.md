@@ -47,6 +47,8 @@
 | `endDataFieldID` | string, 기본 `''` | 생성되는 종료일 입력창의 `syn-datafield` 값. 비우면 `{elID}_EndedAt` 사용 |
 | `startClassName` | string, 기본 `'form-control'` | 시작일 입력창에 적용할 CSS class |
 | `endClassName` | string, 기본 `'form-control'` | 종료일 입력창에 적용할 CSS class |
+| `singleBox` | boolean, 기본 `false` | `true`이면 시작·종료 입력창, `~`, 달력 버튼을 테두리 하나(`form-control` 모양, id `{elID}_Box`) 안에 넣는다. 입력창은 테두리 없이 표시되고 `input-group` 안에서는 남은 너비를 차지한다 |
+| `popupAlign` | string, 기본 `'auto'` | 기간 선택 팝업의 가로 정렬. `'auto'`는 컨트롤 왼쪽 끝에 맞추되 오른쪽 공간이 모자라면 컨트롤 오른쪽 끝에 맞춰 왼쪽으로 연다. `'left'`, `'right'`로 고정할 수 있다 |
 | `dataType` | string, 기본 `'string'` | 다른 컨트롤과 동일한 관례로 정의만 되어 있으며, 이 컨트롤의 `clear()`는 값 형식과 무관하게 항상 빈 문자열로 초기화함(내부에서 별도로 참조하지 않음) |
 | `belongID` | string \| array, 기본 `null` | 소속 그룹/프레임 식별자. 지정하면 생성되는 시작일/종료일 입력창의 `syn-options`에 그대로 전달됨 |
 | `getter` / `setter` | boolean, 기본 `false` | 다른 컨트롤과 동일한 표준 옵션(정의되어 있으나 이 컨트롤 내부 로직에서 직접 참조하지는 않음) |

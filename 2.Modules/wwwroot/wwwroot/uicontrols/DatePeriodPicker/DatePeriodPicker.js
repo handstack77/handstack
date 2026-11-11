@@ -46,6 +46,10 @@
             endDataFieldID: '',
             startClassName: 'form-control',
             endClassName: 'form-control',
+            // true이면 시작·종료 입력, '~', 달력 버튼을 테두리 하나(form-control 모양) 안에 넣는다.
+            singleBox: false,
+            // 기간 선택 팝업 가로 정렬: 'auto'(오른쪽 공간이 모자라면 컨트롤 오른쪽 끝에 맞춰 왼쪽으로 연다), 'left', 'right'
+            popupAlign: 'auto',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -200,6 +204,27 @@
 
             syn.uicontrols.$textbox.controlLoad(textbox1ID, eval('(' + syn.$l.get(textbox1ID).getAttribute('syn-options') + ')'));
             syn.uicontrols.$textbox.controlLoad(textbox2ID, eval('(' + syn.$l.get(textbox2ID).getAttribute('syn-options') + ')'));
+
+            if (setting.singleBox === true) {
+                // 바깥 테두리 하나(form-control) 안에 테두리 없는 시작·종료 입력, '~', 달력 버튼을 둔다. input-group 안에서는 form-control처럼 남은 너비를 차지한다.
+                var box = syn.$m.create({
+                    id: `${elID}_Box`,
+                    tag: 'div',
+                    className: 'form-control syn-dateperiod-single'
+                });
+                syn.$m.insertAfter(box, el);
+
+                syn.$m.addClass(textbox1, 'syn-dateperiod-input');
+                syn.$m.addClass(textbox2, 'syn-dateperiod-input');
+                span.className = 'syn-dateperiod-separator';
+                button.className = 'btn btn-icon syn-dateperiod-button';
+                button.type = 'button';
+
+                box.appendChild(textbox1);
+                box.appendChild(span);
+                box.appendChild(textbox2);
+                box.appendChild(button);
+            }
 
             setting.field = el;
 
@@ -598,30 +623,41 @@
                 var textbox = syn.$l.get(control.textbox1ID);
                 var popup = syn.$l.get('divPeriodPicker');
                 popup.setAttribute('elID', elID);
-                var rect = textbox.getBoundingClientRect();
 
+                // 컨트롤 전체(시작 입력 ~ 달력 버튼)의 영역. singleBox이면 바깥 상자, 아니면 시작 입력과 버튼을 합친 영역이다.
+                var box = syn.$l.get(`${elID}_Box`);
+                var button = syn.$l.get(`${elID}_Button`);
+                var rect = (box || textbox).getBoundingClientRect();
+                var anchorLeft = rect.left;
+                var anchorRight = box ? rect.right : (button ? button.getBoundingClientRect().right : rect.right);
+
+                // 보이지 않게 펼쳐 크기를 잰 뒤 자리를 잡는다. 화면 밖에 먼저 그려져 스크롤이 생겼다 사라지며 흔들리는 것을 막는다.
+                popup.style.visibility = 'hidden';
+                popup.style.top = '0px';
+                popup.style.left = '0px';
                 syn.$m.removeClass(popup, 'hidden');
 
-                var positions = [
-                    { top: rect.bottom + window.scrollY, left: rect.left + window.scrollX },
-                    { top: rect.top + window.scrollY - popup.offsetHeight, left: rect.left + window.scrollX }
-                ];
+                var popupWidth = popup.offsetWidth;
+                var popupHeight = popup.offsetHeight;
+                var viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+                var viewportHeight = document.documentElement.clientHeight || window.innerHeight;
 
-                var bestPosition = positions[0];
-                var viewportWidth = window.innerWidth;
-                var viewportHeight = window.innerHeight;
+                var setting = control.setting || {};
+                var align = setting.popupAlign || 'auto';
+                var left = anchorLeft;
+                if (align == 'right' || (align == 'auto' && anchorLeft + popupWidth > viewportWidth)) {
+                    left = anchorRight - popupWidth;
+                }
+                left = Math.max(0, Math.min(left, viewportWidth - popupWidth));
 
-                for (var i = 0; i < positions.length; i++) {
-                    var pos = positions[i];
-                    if (pos.left >= 0 && pos.left + popup.offsetWidth <= viewportWidth &&
-                        pos.top >= 0 && pos.top + popup.offsetHeight <= viewportHeight) {
-                        bestPosition = pos;
-                        break;
-                    }
+                var top = rect.bottom;
+                if (top + popupHeight > viewportHeight && rect.top - popupHeight >= 0) {
+                    top = rect.top - popupHeight;
                 }
 
-                popup.style.top = bestPosition.top + 'px';
-                popup.style.left = bestPosition.left + 'px';
+                popup.style.top = (top + window.scrollY) + 'px';
+                popup.style.left = (left + window.scrollX) + 'px';
+                popup.style.visibility = '';
             }
         },
 
