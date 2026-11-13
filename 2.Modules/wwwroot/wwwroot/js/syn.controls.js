@@ -27850,6 +27850,13 @@
                 setting.height = setting.height + 'px';
             }
 
+            setting.layoutStorageKey = setting.layoutStorageKey || location.origin + '.' + syn.$w.pageScript + '.' + $auigrid.name.replace('syn.uicontrols.$', '') + '.' + elID;
+
+            var defaultColumnLayout = columnLayout ? $object.clone(columnLayout) : null;
+            if (setting.layoutStorageKey && columnLayout) {
+                columnLayout = $auigrid.restoreColumnLayout(columnLayout, $auigrid.readColumnLayout(setting.layoutStorageKey));
+            }
+
             setting.columns = columnLayout || setting.columns || [];
             el.setAttribute('id', el.id + '_hidden');
             el.setAttribute('syn-options', JSON.stringify(setting));
@@ -27877,8 +27884,14 @@
             $auigrid.gridControls.push({
                 id: elID,
                 gridID: AUIGrid.create(gridID, columnLayout, controlSetting),
-                setting: controlSetting
+                setting: controlSetting,
+                defaultColumnLayout: defaultColumnLayout,
+                resettingColumnLayout: false
             });
+
+            if (setting.layoutStorageKey) {
+                AUIGrid.bind(gridID, 'columnStateChange', function () { $auigrid.saveColumnLayout(elID); });
+            }
 
             if (setting.grandTotals) {
                 $auigrid.setFooter(elID, setting.grandTotals);
@@ -28009,39 +28022,44 @@
                                 var contextEL = document.createElement('ul');
                                 contextEL.id = 'auigridHeaderContextMenu';
                                 contextEL.className = 'aui-grid-context-ui-menu';
-                                contextEL.style.cssText = 'position: absolute; display: none; z-index: 100; padding: 16px;';
+                                contextEL.style.cssText = 'position: absolute; display: none; z-index: 100;';
 
                                 var li1 = document.createElement('li');
                                 li1.id = 'headerItem1';
-                                li1.textContent = '오름차순 정렬';
+                                li1.appendChild(document.createElement('div')).textContent = '오름차순 정렬';
                                 contextEL.appendChild(li1);
 
                                 var li2 = document.createElement('li');
                                 li2.id = 'headerItem2';
-                                li2.textContent = '내림차순 정렬';
+                                li2.appendChild(document.createElement('div')).textContent = '내림차순 정렬';
                                 contextEL.appendChild(li2);
 
                                 var li3 = document.createElement('li');
                                 li3.id = 'headerItem3';
-                                li3.textContent = '정렬 초기화';
+                                li3.appendChild(document.createElement('div')).textContent = '정렬 초기화';
                                 contextEL.appendChild(li3);
 
                                 contextEL.appendChild(document.createElement('li'));
 
                                 var li4 = document.createElement('li');
                                 li4.id = 'headerItem4';
-                                li4.textContent = '현재 칼럼 숨기기';
+                                li4.appendChild(document.createElement('div')).textContent = '현재 칼럼 숨기기';
                                 contextEL.appendChild(li4);
 
                                 var li5 = document.createElement('li');
                                 li5.id = 'headerItem5';
-                                li5.textContent = '모든 칼럼 보이기';
+                                li5.appendChild(document.createElement('div')).textContent = '모든 칼럼 보이기';
                                 contextEL.appendChild(li5);
 
                                 var li6 = document.createElement('li');
                                 li6.id = 'headerItem6';
-                                li6.textContent = '컬럼 숨김 복원하기';
+                                li6.appendChild(document.createElement('div')).textContent = '컬럼 숨김 복원하기';
                                 contextEL.appendChild(li6);
+
+                                var li7 = document.createElement('li');
+                                li7.id = 'headerItem7';
+                                li7.appendChild(document.createElement('div')).textContent = '상태 정보 초기화';
+                                contextEL.appendChild(li7);
 
                                 document.body.appendChild(contextEL);
 
@@ -28825,6 +28843,60 @@
             }
         },
 
+        readColumnLayout(storageKey) {
+            try {
+                return storageKey ? window.localStorage.getItem(storageKey) : null;
+            } catch (error) {
+                return null;
+            }
+        },
+
+        restoreColumnLayout(layout, raw) {
+            if (!raw || !Array.isArray(layout)) return layout;
+            try {
+                var saved = JSON.parse(raw);
+                // 그룹 컬럼이나 중복 식별자는 순서를 안전하게 복원할 수 없다.
+                if (!Array.isArray(saved) || saved.length != layout.length || layout.some((column) => !column || typeof column.dataField != 'string' || Array.isArray(column.children))) return layout;
+                var columns = new Map(layout.map((column) => [column.dataField, column]));
+                if (columns.size != layout.length || saved.some((column) => !column || typeof column.dataField != 'string' || !columns.has(column.dataField)) || new Set(saved.map((column) => column.dataField)).size != layout.length) return layout;
+                return saved.map((column) => {
+                    var result = Object.assign({}, columns.get(column.dataField));
+                    if ((typeof column.width == 'number' && Number.isFinite(column.width) && column.width > 0) || (typeof column.width == 'string' && /^\d+(?:\.\d+)?%$/.test(column.width))) result.width = column.width;
+                    if (typeof column.visible == 'boolean') result.visible = column.visible;
+                    return result;
+                });
+            } catch (error) {
+                return layout;
+            }
+        },
+
+        saveColumnLayout(elID) {
+            var control = $auigrid.gridControls.find((item) => item.id == elID);
+            if (!control || !control.setting.layoutStorageKey || control.resettingColumnLayout) return;
+            try {
+                var columns = AUIGrid.getColumnLayout(control.gridID);
+                if (!Array.isArray(columns) || columns.some((column) => !column || typeof column.dataField != 'string' || Array.isArray(column.children)) || new Set(columns.map((column) => column.dataField)).size != columns.length) return;
+                var state = columns.map((column) => ({ dataField: column.dataField, width: column.width, visible: column.visible }));
+                window.localStorage.setItem(control.setting.layoutStorageKey, JSON.stringify(state));
+            } catch (error) {
+                // 저장소를 사용할 수 없어도 그리드 사용은 계속한다.
+            }
+        },
+
+        resetColumnLayout(elID) {
+            var control = $auigrid.gridControls.find((item) => item.id == elID);
+            if (!control || !control.setting.layoutStorageKey || !control.defaultColumnLayout) return;
+            try {
+                window.localStorage.removeItem(control.setting.layoutStorageKey);
+                control.resettingColumnLayout = true;
+                AUIGrid.changeColumnLayout(control.gridID, control.defaultColumnLayout);
+            } catch (error) {
+                // 저장소 접근이 차단되면 현재 상태를 유지한다.
+            } finally {
+                control.resettingColumnLayout = false;
+            }
+        },
+
         hideContextMenu() {
             if ($auigrid.nowHeaderMenuVisible) {
                 $('#auigridHeaderContextMenu').menu('destroy');
@@ -28845,6 +28917,12 @@
                 syn.$m.removeClass('headerItem4', 'hidden');
                 syn.$m.removeClass('headerItem5', 'hidden');
                 syn.$m.removeClass('headerItem6', 'hidden');
+                var control = $auigrid.gridControls.find((item) => item.gridID == evt.pid);
+                if (control && $auigrid.readColumnLayout(control.setting.layoutStorageKey) !== null) {
+                    syn.$m.removeClass('headerItem7', 'hidden');
+                } else {
+                    syn.$m.addClass('headerItem7', 'hidden');
+                }
                 if ($string.isNullOrEmpty(evt.dataField) == true) {
                     syn.$m.addClass('headerItem1', 'hidden');
                     syn.$m.addClass('headerItem2', 'hidden');
@@ -28905,8 +28983,14 @@
                         }
                     }
                     break;
+                case 'headerItem7':
+                    $auigrid.resetColumnLayout(gridID.substring(1));
+                    break;
             }
 
+            if (['headerItem4', 'headerItem5', 'headerItem6'].includes(selectedId)) {
+                $auigrid.saveColumnLayout(gridID.substring(1));
+            }
             $auigrid.hideContextMenu();
         },
 

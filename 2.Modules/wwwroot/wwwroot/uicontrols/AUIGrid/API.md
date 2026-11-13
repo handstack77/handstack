@@ -66,6 +66,7 @@
 | `showRowCheckColumn` / `rowCheckToRadio` | `false` | 행 체크박스(또는 라디오) 컬럼 |
 | `enableSorting` | `true` | 헤더 클릭 정렬 |
 | `enableMovingColumn` | `false` | 컬럼 순서 드래그 이동 |
+| `layoutStorageKey` | 자동 생성 | 브라우저 localStorage에 컬럼 순서·너비·표시 상태를 저장할 키. 명시한 값이 우선 |
 | `editable` | `true` | 그리드 전체 편집 가능 여부 |
 | `selectionMode` | `'multipleCells'` | 셀 선택 모드 |
 | `hoverMode` | `'singleRow'` | 마우스 오버 강조 방식 |
@@ -76,6 +77,12 @@
 | `applyRestPercentWidth` | `true` | 나머지 컬럼에 남은 폭을 비율대로 배분 |
 | `groupingMessage` / `noDataMessage` | 안내 문구 | 그룹핑/데이터 없음 안내 메시지 |
 | `transactConfig` / `triggerConfig` | `null` | syn.uicontrols 공통 트랜잭션/트리거 연동 옵션 |
+
+### 컬럼 배치 저장
+
+기본 저장 키는 `location.origin + '.' + syn.$w.pageScript + '.' + $auigrid.name.replace('syn.uicontrols.$', '') + '.' + elID`로 생성됩니다. `syn-options` 또는 `controlInit`에서 `layoutStorageKey: 'myapp.screen.grid'`를 명시하면 해당 키를 우선 사용합니다. 출처, 페이지 스크립트 또는 그리드 ID가 바뀌면 자동 생성 키도 달라집니다. 순서 이동은 `enableMovingColumn: true`도 설정하세요. 저장된 상태가 있으면 기본 헤더 컨텍스트 메뉴의 **상태 정보 초기화**로 삭제하고 원래 배치를 복원할 수 있습니다. 화면에서 `contextMenu` 이벤트를 직접 처리하면 초기화 메뉴도 직접 제공해야 하며 `$auigrid.resetColumnLayout(elID)`를 호출할 수 있습니다.
+
+저장 대상은 평면 컬럼의 `dataField`, 너비, 표시 여부뿐이며 렌더러와 함수는 현재 컬럼 정의를 유지합니다. 컬럼 식별자가 중복되거나 그룹 컬럼이 있으면 저장·복원을 건너뜁니다. 컬럼 구성이 달라지거나 저장 데이터가 잘못된 경우 기본 배치를 사용하며, 저장소 사용이 차단되면 그리드는 저장 없이 동작합니다. 키는 같은 출처의 다른 화면과 충돌하지 않도록 지정하세요.
 
 ### 메서드
 

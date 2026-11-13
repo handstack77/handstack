@@ -2199,3 +2199,49 @@
     padding: 0;
     border-top: 1px solid #182433;
 }
+
+/* 헤더와 본문 컨텍스트 메뉴 */
+.aui-grid-context-popup-layer,
+#auigridHeaderContextMenu.ui-menu {
+    min-width: 180px;
+    max-width: none;
+    padding: 4px;
+    border: 1px solid var(--tblr-border-color, #aaaaaa);
+    border-radius: 6px;
+    background: var(--tblr-bg-surface, #fff);
+    color: var(--tblr-body-color, #222);
+    box-shadow: 0 4px 16px #00000026;
+    font-size: 14px;
+}
+.aui-grid-context-popup-layer .aui-grid-context-item,
+#auigridHeaderContextMenu.ui-menu .ui-menu-item-wrapper {
+    min-height: 36px;
+    height: auto;
+    padding: 6px 12px;
+    border-radius: 4px;
+    line-height: 24px;
+    box-sizing: border-box;
+}
+.aui-grid-context-popup-layer .aui-grid-context-item:hover,
+.aui-grid-context-popup-layer .aui-grid-context-item:focus-visible,
+#auigridHeaderContextMenu.ui-menu .ui-state-active {
+    background: var(--tblr-secondary-bg, #e9f0fb);
+    color: inherit;
+}
+#auigridHeaderContextMenu.ui-menu .ui-state-active {
+    margin: 0;
+    border: 0;
+}
+#auigridHeaderContextMenu.ui-menu .ui-menu-divider {
+    height: 1px;
+    margin: 4px 0;
+    border: 0;
+    background: var(--tblr-border-color, #ccc);
+}
+.aui-grid-context-popup-layer .aui-grid-context-item-line {
+    height: 1px;
+    padding: 0;
+    margin: 4px 0;
+    border: 0;
+    background: var(--tblr-border-color, #ccc);
+}
