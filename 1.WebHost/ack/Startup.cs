@@ -663,31 +663,11 @@ namespace ack
                                             var directory = new DirectoryInfo(moduleContractPath);
                                             if (directory.Exists == true)
                                             {
-                                                var sourceContractDirectory = directory.FullName.Replace("\\", "/");
                                                 var targetContractDirectory = PathExtensions.Combine(GlobalConfiguration.LoadContractBasePath, module.ModuleID);
 
                                                 try
                                                 {
-                                                    if (Directory.Exists(sourceContractDirectory))
-                                                    {
-                                                        var files = Directory.GetFiles(sourceContractDirectory, "*", SearchOption.AllDirectories);
-                                                        foreach (var baseFile in files)
-                                                        {
-                                                            var targetFile = baseFile.Replace(sourceContractDirectory, targetContractDirectory);
-                                                            if (File.Exists(targetFile) == true)
-                                                            {
-                                                                File.Delete(targetFile);
-                                                                if (module.ModuleID == "function")
-                                                                {
-                                                                    var parentDirectory = Path.GetDirectoryName(targetFile);
-                                                                    if (Directory.Exists(parentDirectory) == true && Directory.GetFiles(parentDirectory).Length == 0)
-                                                                    {
-                                                                        Directory.Delete(parentDirectory);
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
+                                                    PurgeCopies(directory.FullName, targetContractDirectory, module.ModuleID == "function");
                                                 }
                                                 catch (Exception exception)
                                                 {
@@ -2207,6 +2187,42 @@ namespace ack
                 action.ToStringSafe(),
                 route.ToStringSafe());
             return true;
+        }
+
+        private static void PurgeCopies(string sourceDirectory, string targetDirectory, bool removeEmptyDirectories)
+        {
+            var targetRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(targetDirectory));
+            var directories = new HashSet<string>();
+
+            foreach (var sourceFile in Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
+            {
+                var targetFile = Path.Combine(targetRoot, Path.GetRelativePath(sourceDirectory, sourceFile));
+                if (File.Exists(targetFile) == false)
+                {
+                    continue;
+                }
+
+                File.Delete(targetFile);
+                if (removeEmptyDirectories == true)
+                {
+                    for (var directory = Path.GetDirectoryName(targetFile); directory != null && directories.Add(directory); directory = Path.GetDirectoryName(directory))
+                    {
+                        if (directory == targetRoot)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 상위 폴더를 검사하기 전에 그 아래의 빈 폴더부터 삭제한다.
+            foreach (var directory in directories.OrderByDescending(path => path.Length))
+            {
+                if (Directory.Exists(directory) == true && Directory.EnumerateFileSystemEntries(directory).Any() == false)
+                {
+                    Directory.Delete(directory);
+                }
+            }
         }
 
         protected void DirectoryCopy(string sourceDir, string destDir)
